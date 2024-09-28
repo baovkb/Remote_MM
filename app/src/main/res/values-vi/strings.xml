@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Remote MM</string>
+
+<!--    connect fragment-->
+    <string name="text_hint_connect">Nhập địa chỉ của server</string>
+    <string name="text_connect">Kết nối</string>
+    <string name="toast_connect_fail">Không thể kết nối đến server</string>
+    <string name="toast_wrong_url">Url không hợp lệ</string>
+
+<!--    main fragment-->
+    <string name="main_restart">Khởi động lại</string>
+    <string name="volume_group">Âm lượng</string>
+    <string name="speaker">Loa</string>
+    <string name="recorder">Ghi âm</string>
+    <string name="modules_by_page_group">Trang</string>
+    <string name="modules_group">Tất cả mô-đun</string>
+</resources>

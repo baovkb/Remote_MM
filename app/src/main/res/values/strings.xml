@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Remote MM</string>
+
+    <!--    connect fragment-->
+    <string name="text_hint_connect">Enter address of server</string>
+    <string name="text_connect">Connect</string>
+    <string name="toast_connect_fail">Cannot connect to server</string>
+    <string name="toast_wrong_url">Url is invalid</string>
+
+    <!--    main fragment-->
+    <string name="main_restart">Restart</string>
+    <string name="volume_group">Volume</string>
+    <string name="speaker">Speaker</string>
+    <string name="recorder">Recorder</string>
+    <string name="modules_by_page_group">Page</string>
+    <string name="modules_group">All modules</string>
+</resources>
