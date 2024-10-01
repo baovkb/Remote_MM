@@ -1,8 +1,9 @@
 package com.vkbao.remotemm.model;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class ModuleModel {
+public class ModuleModel implements Serializable {
     private String module;
     private String position;
     private Map<String, Object> config;

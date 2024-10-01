@@ -6,6 +6,7 @@
     <string name="text_hint_connect">Nhập địa chỉ của server</string>
     <string name="text_connect">Kết nối</string>
     <string name="toast_connect_fail">Không thể kết nối đến server</string>
+    <string name="toast_disconnect">Mất kết nối</string>
     <string name="toast_wrong_url">Url không hợp lệ</string>
 
 <!--    main fragment-->
@@ -15,4 +16,8 @@
     <string name="recorder">Ghi âm</string>
     <string name="modules_by_page_group">Trang</string>
     <string name="modules_group">Tất cả mô-đun</string>
+
+    <!--    edit fragment-->
+    <string name="toolbar_title">Chỉnh sửa cấu hình module</string>
+    <string name="menu_save">Lưu</string>
 </resources>

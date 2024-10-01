@@ -5,6 +5,7 @@
     <string name="text_hint_connect">Enter address of server</string>
     <string name="text_connect">Connect</string>
     <string name="toast_connect_fail">Cannot connect to server</string>
+    <string name="toast_disconnect">Lost connection</string>
     <string name="toast_wrong_url">Url is invalid</string>
 
     <!--    main fragment-->
@@ -14,4 +15,9 @@
     <string name="recorder">Recorder</string>
     <string name="modules_by_page_group">Page</string>
     <string name="modules_group">All modules</string>
+
+<!--    edit fragment-->
+    <string name="toolbar_title">Edit module config</string>
+    <string name="positionText" translatable="false">Position</string>
+    <string name="menu_save">Save</string>
 </resources>

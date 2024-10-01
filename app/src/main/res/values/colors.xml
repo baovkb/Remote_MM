@@ -8,4 +8,5 @@
     <color name="red">#DD0F0F</color>
     <color name="gray">#6C6C6C</color>
     <color name="light_gray">#B5B1B1</color>
+    <color name="outline">#DFD7D7</color>
 </resources>

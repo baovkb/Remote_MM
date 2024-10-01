@@ -24,6 +24,7 @@ import com.vkbao.remotemm.views.activities.MainActivity;
 public class ConnectFragment extends Fragment {
     private FragmentConnectBinding binding;
     private WebsocketViewModel websocketViewModel;
+    private String url;
 
     public ConnectFragment() {
         // Required empty public constructor
@@ -57,23 +58,54 @@ public class ConnectFragment extends Fragment {
 
     public void connectAction() {
         websocketViewModel.getMessageLiveData().observe(getViewLifecycleOwner(), message -> {
-            if (message.equals("failure")) {
-                Toast.makeText(requireActivity(), getResources().getString(R.string.toast_connect_fail), Toast.LENGTH_SHORT).show();
-            } else if (message.equals("error_url")) {
-                Toast.makeText(requireActivity(), getResources().getString(R.string.toast_wrong_url), Toast.LENGTH_SHORT).show();
-            } else {
-                //navigate to main fragment
-                FragmentManager fragmentManager = getParentFragmentManager();
-                fragmentManager
-                        .beginTransaction()
-                        .replace(R.id.main, new MainFragment())
-                        .commit();
+            switch (message) {
+                case "connecting":
+                    binding.progressConnect.setVisibility(View.VISIBLE);
+                    deactiveConnectBtn();
+                    break;
+                case "failure":
+                    Toast.makeText(requireActivity(), getResources().getString(R.string.toast_connect_fail), Toast.LENGTH_SHORT).show();
+                    binding.progressConnect.setVisibility(View.GONE);
+                    activeConnectBtn();
+                    break;
+                case "error_url":
+                    Toast.makeText(requireActivity(), getResources().getString(R.string.toast_wrong_url), Toast.LENGTH_SHORT).show();
+                    binding.progressConnect.setVisibility(View.GONE);
+                    activeConnectBtn();
+                    break;
+                default:
+                    Bundle bundle = new Bundle();
+                    bundle.putString("url", url);
+                    MainFragment mainFragment = new MainFragment();
+                    mainFragment.setArguments(bundle);
+
+                    //navigate to main fragment
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    fragmentManager
+                            .beginTransaction()
+                            .replace(R.id.main, mainFragment)
+                            .commit();
+                    break;
             }
         });
 
         binding.connectBtn.setOnClickListener(view -> {
-            String url = binding.addressInput.getText().toString();
+            url = binding.addressInput.getText().toString();
             websocketViewModel.connect(url);
         });
+
+        binding.progressConnect.setVisibility(View.GONE);
+    }
+
+    public void activeConnectBtn() {
+        binding.connectBtn.setEnabled(true);
+        binding.connectBtn.setBackgroundResource(R.drawable.blue_bg);
+        binding.connectBtn.setTextColor(getResources().getColor(R.color.white, null));
+    }
+
+    public void deactiveConnectBtn() {
+        binding.connectBtn.setEnabled(false);
+        binding.connectBtn.setBackgroundResource(R.drawable.deactive_bg);
+        binding.connectBtn.setTextColor(getResources().getColor(R.color.dark_blue, null));
     }
 }
