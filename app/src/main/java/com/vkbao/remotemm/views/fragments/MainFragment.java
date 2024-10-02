@@ -18,12 +18,14 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.vkbao.remotemm.R;
 import com.vkbao.remotemm.adapter.ModuleAdapter;
 import com.vkbao.remotemm.adapter.ModuleByPageAdapter;
 import com.vkbao.remotemm.databinding.FragmentMainBinding;
+import com.vkbao.remotemm.helper.CustomJson;
 import com.vkbao.remotemm.model.ModuleModel;
 import com.vkbao.remotemm.model.ModulesByPageModel;
 import com.vkbao.remotemm.model.ModulesByPageResponse;
@@ -40,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MainFragment extends Fragment {
     private FragmentMainBinding binding;
     private WebsocketViewModel websocketViewModel;
-    private static Gson gson = new Gson();
+    private static Gson gson;
     private String url;
 
     private static final String TAG = "MainFragment";
@@ -52,6 +54,9 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Map.class, new CustomJson());
+        gson = gsonBuilder.create();
     }
 
     @Override
@@ -144,8 +149,8 @@ public class MainFragment extends Fragment {
                                 modulesByPageResponse.getPage(),
                                 modulesByPageResponse.getTotalPage());
                     } else if (map.get("action").toString().equals("volume")) {
-                        binding.seekbarSpeaker.setProgress(((Double) ((Map) map.get("data")).get("speaker")).intValue());
-                        binding.seekbarRecorder.setProgress(((Double) ((Map) map.get("data")).get("recorder")).intValue());
+                        binding.seekbarSpeaker.setProgress((Integer) ((Map)map.get("data")).get("speaker"));
+                        binding.seekbarRecorder.setProgress((Integer) ((Map)map.get("data")).get("recorder"));
                     } else if (map.get("action").toString().equals("all modules")) {
                         String dataJson = gson.toJson(map.get("data"));
                         Type moduleListType = new TypeToken<List<ModuleModel>>() {}.getType();
@@ -154,6 +159,7 @@ public class MainFragment extends Fragment {
                         initAllModules(moduleList);
                     } else if (map.get("action").toString().equals("modules by page")) {
                         String dataJson = gson.toJson(map.get("data"));
+
                         ModulesByPageResponse modulesByPageResponse = gson.fromJson(dataJson, ModulesByPageResponse.class);
                         initModuleByPage(
                                 modulesByPageResponse.getPageModules(),

@@ -53,6 +53,7 @@
                     android:orientation="vertical">
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/restart_btn"
+                        android:paddingHorizontal="8dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/button"
@@ -80,6 +81,7 @@
                     android:layout_gravity="center_horizontal"
                     android:textSize="18sp"
                     android:layout_marginTop="8dp"
+                    android:textColor="@color/dark_blue"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp"
                     android:text="@string/volume_group"/>
@@ -108,9 +110,11 @@
                         android:max="100"
                         android:min="0"
                         android:progress="0"
+                        android:progressBackgroundTint="@color/gray"
+                        android:progressTint="@color/dark_blue"
+                        android:thumbTint="@color/dark_blue"
                         android:layout_toEndOf="@+id/speakerTV"
-                        android:layout_toStartOf="@+id/speaker_value"
-                        android:progressTint="@color/blue" />
+                        android:layout_toStartOf="@+id/speaker_value" />
                     <TextView
                         android:id="@+id/speaker_value"
                         android:layout_width="wrap_content"
@@ -146,9 +150,11 @@
                         android:max="100"
                         android:min="0"
                         android:progress="0"
+                        android:progressBackgroundTint="@color/gray"
+                        android:progressTint="@color/dark_blue"
+                        android:thumbTint="@color/dark_blue"
                         android:layout_toEndOf="@+id/recorderTV"
-                        android:layout_toStartOf="@+id/recorder_value"
-                        android:progressTint="@color/blue" />
+                        android:layout_toStartOf="@+id/recorder_value" />
 
                     <TextView
                         android:id="@+id/recorder_value"
@@ -181,6 +187,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
+                    android:textColor="@color/dark_blue"
                     android:textSize="18sp"
                     android:layout_marginTop="8dp"
                     android:textStyle="bold"
@@ -262,6 +269,7 @@
                     android:layout_gravity="center_horizontal"
                     android:textSize="18sp"
                     android:layout_marginTop="8dp"
+                    android:textColor="@color/dark_blue"
                     android:layout_marginBottom="8dp"
                     android:textStyle="bold"
                     android:text="@string/modules_group"/>

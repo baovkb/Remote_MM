@@ -1,10 +1,12 @@
 package com.vkbao.remotemm.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +23,7 @@ import java.util.Map;
 public class ConfigAdapter extends RecyclerView.Adapter<ConfigAdapter.ConfigViewHolder> {
     private Map<String, Object> config;
     private List<String> keys;
+    private Context context;
 
     public ConfigAdapter(Map<String, Object> config) {
         this.config = config;
@@ -30,7 +33,8 @@ public class ConfigAdapter extends RecyclerView.Adapter<ConfigAdapter.ConfigView
     @NonNull
     @Override
     public ConfigViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ConfigItemBinding binding = ConfigItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        this.context = parent.getContext();
+        ConfigItemBinding binding = ConfigItemBinding.inflate(LayoutInflater.from(context), parent, false);
         return new ConfigViewHolder(binding);
     }
 
@@ -39,8 +43,9 @@ public class ConfigAdapter extends RecyclerView.Adapter<ConfigAdapter.ConfigView
         String key = keys.get(position);
         Object value = config.get(key);
 
-        holder.setKey(key);
-        holder.setValue(value.toString());
+//        holder.setKey(key);
+//        holder.setValue(value.toString());
+
     }
 
     @Override
@@ -56,12 +61,12 @@ public class ConfigAdapter extends RecyclerView.Adapter<ConfigAdapter.ConfigView
             this.binding = binding;
         }
 
-        public void setKey(String key) {
-            binding.key.setText(key);
-        }
-
-        public void setValue(String value) {
-            binding.value.setText(value);
-        }
+//        public void setKey(String key) {
+//            binding.key.setText(key);
+//        }
+//
+//        public void setValue(String value) {
+//            binding.value.setText(value);
+//        }
     }
 }
