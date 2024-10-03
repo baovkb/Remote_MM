@@ -20,4 +20,5 @@
     <string name="toolbar_title">Edit module config</string>
     <string name="positionText" translatable="false">Position</string>
     <string name="menu_save">Save</string>
+    <string name="confirm_save_config">Are you sure you want to save this config?\n(You need to restart the mirror to ensure working properly)</string>
 </resources>

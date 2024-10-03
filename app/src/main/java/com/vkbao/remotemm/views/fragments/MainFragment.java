@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -30,6 +31,7 @@ import com.vkbao.remotemm.model.ModuleModel;
 import com.vkbao.remotemm.model.ModulesByPageModel;
 import com.vkbao.remotemm.model.ModulesByPageResponse;
 import com.vkbao.remotemm.model.SystemInfoResponse;
+import com.vkbao.remotemm.model.VolumeModel;
 import com.vkbao.remotemm.viewmodel.WebsocketViewModel;
 import com.vkbao.remotemm.views.activities.MainActivity;
 
@@ -42,8 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MainFragment extends Fragment {
     private FragmentMainBinding binding;
     private WebsocketViewModel websocketViewModel;
-    private static Gson gson;
     private String url;
+    private Gson gson;
 
     private static final String TAG = "MainFragment";
 
@@ -54,9 +56,8 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Map.class, new CustomJson());
-        gson = gsonBuilder.create();
+
+        gson = new Gson();
     }
 
     @Override
@@ -81,109 +82,21 @@ public class MainFragment extends Fragment {
 
         websocketViewModel = new ViewModelProvider(requireActivity()).get(WebsocketViewModel.class);
 
-        initView();
-    }
-
-    public void initView() {
-        CountDownTimer countDownTimer = new CountDownTimer(3000, 1000) {
-            @Override
-            public void onTick(long l) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                if (url != null) {
-                    websocketViewModel.connect(url);
-                }
-            }
-        };
-
-        AtomicBoolean isFirstLostConnection = new AtomicBoolean(false);
-
-        websocketViewModel.getMessageLiveData().observe(getViewLifecycleOwner(), message -> {
-            switch (message) {
-                case "connecting":
-                    Log.d(TAG, "connecting");
-                    binding.lostConnectionLayout.setVisibility(View.VISIBLE);
-                    break;
-                case "failure":
-                    if (!isFirstLostConnection.get()) {
-                        Toast.makeText(requireActivity(), getResources().getString(R.string.toast_connect_fail), Toast.LENGTH_SHORT).show();
-                        isFirstLostConnection.set(true);
-                    }
-                    countDownTimer.start();
-                    break;
-                case "disconnected":
-                    Toast.makeText(requireActivity(), getResources().getString(R.string.toast_disconnect), Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    isFirstLostConnection.set(false);
-                    countDownTimer.cancel();
-                    binding.lostConnectionLayout.setVisibility(View.GONE);
-
-                    Map<String, Object> map;
-                    try {
-                        map = gson.fromJson(message, new TypeToken<Map<String, Object>>() {
-                        }.getType());
-                    } catch (Exception e) {
-                        return;
-                    }
-
-                    if (map.get("action").toString().equals("system info")) {
-                        SystemInfoResponse sysInfo = gson.fromJson(message, SystemInfoResponse.class);
-
-                        //volume
-                        binding.seekbarSpeaker.setProgress(sysInfo.getSpeaker());
-                        binding.speakerValue.setText(String.valueOf(sysInfo.getSpeaker()));
-                        binding.seekbarRecorder.setProgress(sysInfo.getRecorder());
-                        binding.recorderValue.setText(String.valueOf(sysInfo.getRecorder()));
-
-                        //all modules
-                        initAllModules(sysInfo.getAllModules());
-
-                        //module by page
-                        ModulesByPageResponse modulesByPageResponse = sysInfo.getModulesByPage();
-                        initModuleByPage(
-                                modulesByPageResponse.getPageModules(),
-                                modulesByPageResponse.getPage(),
-                                modulesByPageResponse.getTotalPage());
-                    } else if (map.get("action").toString().equals("volume")) {
-                        binding.seekbarSpeaker.setProgress((Integer) ((Map)map.get("data")).get("speaker"));
-                        binding.seekbarRecorder.setProgress((Integer) ((Map)map.get("data")).get("recorder"));
-                    } else if (map.get("action").toString().equals("all modules")) {
-                        String dataJson = gson.toJson(map.get("data"));
-                        Type moduleListType = new TypeToken<List<ModuleModel>>() {}.getType();
-                        List<ModuleModel> moduleList = gson.fromJson(dataJson, moduleListType);
-
-                        initAllModules(moduleList);
-                    } else if (map.get("action").toString().equals("modules by page")) {
-                        String dataJson = gson.toJson(map.get("data"));
-
-                        ModulesByPageResponse modulesByPageResponse = gson.fromJson(dataJson, ModulesByPageResponse.class);
-                        initModuleByPage(
-                                modulesByPageResponse.getPageModules(),
-                                modulesByPageResponse.getPage(),
-                                modulesByPageResponse.getTotalPage());
-                    }
-                    break;
-            }
-        });
-
+        initConnectionState();
+        initVolume();
+        initModuleByPage();
+        initAllModules();
         handleSystemBtn();
-        handleVolume();
-        handlePage();
     }
 
-    public void handleSystemBtn() {
-        binding.restartBtn.setOnClickListener(view -> {
-            Map<String, String> cmd = new LinkedTreeMap<>();
-            cmd.put("action", "reboot magic mirror");
-            websocketViewModel.sendMessage(gson.toJson(cmd));
+    public void initVolume() {
+        websocketViewModel.getVolumeLiveData().observe(getViewLifecycleOwner(), volumeModel -> {
+            binding.seekbarSpeaker.setProgress(volumeModel.getSpeaker());
+            binding.speakerValue.setText(String.valueOf(volumeModel.getSpeaker()));
+            binding.seekbarRecorder.setProgress(volumeModel.getRecorder());
+            binding.recorderValue.setText(String.valueOf(volumeModel.getRecorder()));
         });
-    }
 
-    public void handleVolume() {
         binding.seekbarSpeaker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -225,7 +138,78 @@ public class MainFragment extends Fragment {
         });
     }
 
-    private void handlePage() {
+    public void initConnectionState() {
+        CountDownTimer countDownTimer = new CountDownTimer(3000, 1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                if (url != null) {
+                    websocketViewModel.connect(url);
+                }
+            }
+        };
+
+
+        websocketViewModel.getConnectionStateLiveData().observe(getViewLifecycleOwner(), connectionState -> {
+            switch (connectionState) {
+                case CONNECTING:
+                    binding.lostConnectionLayout.setVisibility(View.VISIBLE);
+                    break;
+                case DISCONNECTED:
+                    countDownTimer.start();
+                    break;
+                case CONNECTED:
+                    countDownTimer.cancel();
+                    binding.lostConnectionLayout.setVisibility(View.GONE);
+                default:
+            }
+        });
+    }
+
+    private void initAllModules() {
+        websocketViewModel.getAllModuleLiveData().observe(getViewLifecycleOwner(), moduleList -> {
+            ModuleAdapter moduleAdapter = new ModuleAdapter(moduleList, module -> {
+                //navigate to edit config fragment
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("module", module);
+                EditConfigFragment editConfigFragment = new EditConfigFragment();
+                editConfigFragment.setArguments(bundle);
+
+                FragmentManager fragmentManager = getParentFragmentManager();
+                fragmentManager
+                        .beginTransaction()
+                        .replace(R.id.main, editConfigFragment)
+                        .addToBackStack(null)
+                        .commit();
+            });
+            binding.moduleList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
+            binding.moduleList.setAdapter(null);
+            binding.moduleList.setAdapter(moduleAdapter);
+        });
+    }
+
+    public void initModuleByPage() {
+        websocketViewModel.getModulesByPageLiveData().observe(getViewLifecycleOwner(), modulesByPageResponse -> {
+            binding.pageStart.setText(String.valueOf(modulesByPageResponse.getPage() + 1));
+            binding.pageEnd.setText(String.valueOf(modulesByPageResponse.getTotalPage()));
+            ModuleByPageAdapter adapter = new ModuleByPageAdapter(modulesByPageResponse.getPageModules(), modulesByPage -> {
+                Map<String, Object> payload = new LinkedTreeMap<>();
+                List<ModulesByPageModel> modules = new ArrayList<>();
+                modules.add(modulesByPage);
+
+                payload.put("action", "request update modules");
+                payload.put("data", modules);
+                websocketViewModel.sendMessage(gson.toJson(payload));
+            });
+            binding.moduleByPageList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
+            binding.moduleByPageList.setAdapter(null);
+            binding.moduleByPageList.setAdapter(adapter);
+        });
+
         binding.previousPageBtn.setOnClickListener(view -> {
             Map<String, String> cmd = new LinkedTreeMap<>();
             cmd.put("action", "request previous page");
@@ -239,42 +223,11 @@ public class MainFragment extends Fragment {
         });
     }
 
-    private void initAllModules(List<ModuleModel> moduleList) {
-        ModuleAdapter moduleAdapter = new ModuleAdapter(moduleList, module -> {
-            //navigate to edit config fragment
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("module", module);
-            EditConfigFragment editConfigFragment = new EditConfigFragment();
-            editConfigFragment.setArguments(bundle);
-
-            FragmentManager fragmentManager = getParentFragmentManager();
-            fragmentManager
-                    .beginTransaction()
-                    .replace(R.id.main, editConfigFragment)
-                    .addToBackStack(null)
-                    .commit();
+    public void handleSystemBtn() {
+        binding.restartBtn.setOnClickListener(view -> {
+            Map<String, String> cmd = new LinkedTreeMap<>();
+            cmd.put("action", "reboot magic mirror");
+            websocketViewModel.sendMessage(gson.toJson(cmd));
         });
-        binding.moduleList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
-        binding.moduleList.setAdapter(null);
-        binding.moduleList.setAdapter(moduleAdapter);
-    }
-
-    public void initModuleByPage(List<ModulesByPageModel> itemList, int page, int totalPage) {
-        binding.pageStart.setText(String.valueOf(page + 1));
-        binding.pageEnd.setText(String.valueOf(totalPage));
-        ModuleByPageAdapter adapter = new ModuleByPageAdapter(itemList, modulesByPage -> {
-            Map<String, Object> payload = new LinkedTreeMap<>();
-            List<ModulesByPageModel> modules = new ArrayList<>();
-            modules.add(modulesByPage);
-
-            payload.put("action", "request update modules");
-            payload.put("data", modules);
-
-            Log.d("test", gson.toJson(payload));
-            websocketViewModel.sendMessage(gson.toJson(payload));
-        });
-        binding.moduleByPageList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
-        binding.moduleByPageList.setAdapter(null);
-        binding.moduleByPageList.setAdapter(adapter);
     }
 }

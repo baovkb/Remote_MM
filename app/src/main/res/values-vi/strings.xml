@@ -20,4 +20,5 @@
     <!--    edit fragment-->
     <string name="toolbar_title">Chỉnh sửa cấu hình module</string>
     <string name="menu_save">Lưu</string>
+    <string name="confirm_save_config">Bạn có chắc muốn lưu cấu hình này?\n(Bạn cần khởi động lại sau khi thay đổi để đảm bảo hoạt động đúng)</string>
 </resources>

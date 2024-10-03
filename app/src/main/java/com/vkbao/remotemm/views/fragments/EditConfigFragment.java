@@ -1,6 +1,5 @@
 package com.vkbao.remotemm.views.fragments;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,9 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,18 +26,16 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vkbao.remotemm.R;
-import com.vkbao.remotemm.adapter.ConfigAdapter;
 import com.vkbao.remotemm.databinding.ConfigValueBinding;
 import com.vkbao.remotemm.databinding.FragmentEditConfigBinding;
 import com.vkbao.remotemm.helper.Helper;
 import com.vkbao.remotemm.model.ModuleModel;
-import com.vkbao.remotemm.viewmodel.ModuleListViewModel;
 import com.vkbao.remotemm.viewmodel.WebsocketViewModel;
 import com.vkbao.remotemm.views.activities.MainActivity;
+import com.vkbao.remotemm.views.dialogs.ConfirmDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +88,7 @@ public class EditConfigFragment extends Fragment {
         }
     }
 
-   public void initMenuToolbar() {
+    public void initMenuToolbar() {
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
@@ -103,13 +98,7 @@ public class EditConfigFragment extends Fragment {
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.save_config) {
-                    Gson gson = new Gson();
-                    Map<String, Object> payload = new LinkedTreeMap<>();
-                    payload.put("action", "request save config");
-                    payload.put("data", module);
-
-                    Log.d("test", gson.toJson(payload));
-                    websocketViewModel.sendMessage(gson.toJson(payload));
+                    showConfirmDialog();
                 } else if (menuItem.getItemId() == android.R.id.home) {
                     getParentFragmentManager().popBackStack();
                 }
@@ -117,7 +106,22 @@ public class EditConfigFragment extends Fragment {
                 return false;
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-   }
+    }
+
+    public void showConfirmDialog() {
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setMessage(getString(R.string.confirm_save_config));
+        confirmDialog.setPositiveBtn(() -> {
+            Gson gson = new Gson();
+            Map<String, Object> payload = new LinkedTreeMap<>();
+            payload.put("action", "request save config");
+            payload.put("data", module);
+
+            websocketViewModel.sendMessage(gson.toJson(payload));
+        });
+
+        confirmDialog.show(getChildFragmentManager(), null);
+    }
 
     public void initPosition() {
         List<String> positionList = new ArrayList<>();

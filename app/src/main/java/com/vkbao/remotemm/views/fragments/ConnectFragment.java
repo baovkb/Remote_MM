@@ -53,27 +53,27 @@ public class ConnectFragment extends Fragment {
 
         websocketViewModel = new ViewModelProvider(requireActivity()).get(WebsocketViewModel.class);
 
-        connectAction();
+        handleConnect();
     }
 
-    public void connectAction() {
-        websocketViewModel.getMessageLiveData().observe(getViewLifecycleOwner(), message -> {
-            switch (message) {
-                case "connecting":
+    public void handleConnect() {
+        websocketViewModel.getConnectionStateLiveData().observe(getViewLifecycleOwner(), connectionState -> {
+            switch (connectionState) {
+                case CONNECTING:
                     binding.progressConnect.setVisibility(View.VISIBLE);
                     deactiveConnectBtn();
                     break;
-                case "failure":
-                    Toast.makeText(requireActivity(), getResources().getString(R.string.toast_connect_fail), Toast.LENGTH_SHORT).show();
-                    binding.progressConnect.setVisibility(View.GONE);
-                    activeConnectBtn();
-                    break;
-                case "error_url":
+                case ERROR_URL:
                     Toast.makeText(requireActivity(), getResources().getString(R.string.toast_wrong_url), Toast.LENGTH_SHORT).show();
                     binding.progressConnect.setVisibility(View.GONE);
                     activeConnectBtn();
                     break;
-                default:
+                case DISCONNECTED:
+                    Toast.makeText(requireActivity(), getResources().getString(R.string.toast_connect_fail), Toast.LENGTH_SHORT).show();
+                    binding.progressConnect.setVisibility(View.GONE);
+                    activeConnectBtn();
+                    break;
+                case CONNECTED:
                     Bundle bundle = new Bundle();
                     bundle.putString("url", url);
                     MainFragment mainFragment = new MainFragment();
@@ -86,6 +86,7 @@ public class ConnectFragment extends Fragment {
                             .replace(R.id.main, mainFragment)
                             .commit();
                     break;
+                default:
             }
         });
 
