@@ -6,27 +6,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.vkbao.remotemm.R;
 import com.vkbao.remotemm.adapter.ModuleAdapter;
 import com.vkbao.remotemm.adapter.ModuleByPageAdapter;
-import com.vkbao.remotemm.clients.WebsocketClientManager;
 import com.vkbao.remotemm.databinding.FragmentMainBinding;
+import com.vkbao.remotemm.helper.CustomJson;
 import com.vkbao.remotemm.model.ModuleModel;
 import com.vkbao.remotemm.model.ModulesByPageModel;
 import com.vkbao.remotemm.model.ModulesByPageResponse;
 import com.vkbao.remotemm.model.SystemInfoResponse;
+import com.vkbao.remotemm.model.VolumeModel;
 import com.vkbao.remotemm.viewmodel.WebsocketViewModel;
 import com.vkbao.remotemm.views.activities.MainActivity;
 
@@ -34,10 +39,15 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainFragment extends Fragment {
     private FragmentMainBinding binding;
     private WebsocketViewModel websocketViewModel;
+    private String url;
+    private Gson gson;
+
+    private static final String TAG = "MainFragment";
 
     public MainFragment() {
         // Required empty public constructor
@@ -46,6 +56,8 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        gson = new Gson();
     }
 
     @Override
@@ -60,73 +72,162 @@ public class MainFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if (getArguments() != null) {
+            url = getArguments().getString("url");
+        }
+
         ((MainActivity)getActivity()).setSupportActionBar(binding.toolbar);
         ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((MainActivity)getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
 
         websocketViewModel = new ViewModelProvider(requireActivity()).get(WebsocketViewModel.class);
 
-        initView();
+        initConnectionState();
+        initVolume();
+        initModuleByPage();
+        initAllModules();
+        handleSystemBtn();
     }
 
-    public void initView() {
-        websocketViewModel.getMessageLiveData().observe(getViewLifecycleOwner(), message -> {
-            if (message.equals("failure")) {
-                Toast.makeText(requireActivity(), getResources().getString(R.string.toast_connect_fail), Toast.LENGTH_SHORT).show();
-            } else if (message.equals("error_url")) {
-                Toast.makeText(requireActivity(), getResources().getString(R.string.toast_wrong_url), Toast.LENGTH_SHORT).show();
-            } else {
-                Gson gson = new Gson();
-                Map<String, Object> map = gson.fromJson(message, new TypeToken<Map<String, Object>>(){}.getType());
+    public void initVolume() {
+        websocketViewModel.getVolumeLiveData().observe(getViewLifecycleOwner(), volumeModel -> {
+            binding.seekbarSpeaker.setProgress(volumeModel.getSpeaker());
+            binding.speakerValue.setText(String.valueOf(volumeModel.getSpeaker()));
+            binding.seekbarRecorder.setProgress(volumeModel.getRecorder());
+            binding.recorderValue.setText(String.valueOf(volumeModel.getRecorder()));
+        });
 
-                if (map.get("action").toString().equals("system info")) {
-                    SystemInfoResponse sysInfo = gson.fromJson(message, SystemInfoResponse.class);
+        binding.seekbarSpeaker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                binding.speakerValue.setText(String.valueOf(binding.seekbarSpeaker.getProgress()));
+            }
 
-                    //volume
-                    binding.seekbarSpeaker.setProgress(sysInfo.getSpeaker());
-                    binding.seekbarRecorder.setProgress(sysInfo.getRecorder());
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
 
-                    //all modules
-                    initAllModules(sysInfo.getAllModules());
+            }
 
-                    //module by page
-                    ModulesByPageResponse modulesByPageResponse = sysInfo.getModulesByPage();
-                    initModuleByPage(
-                            modulesByPageResponse.getPageModules(),
-                            modulesByPageResponse.getPage(),
-                            modulesByPageResponse.getTotalPage());
-                } else if (map.get("action").toString().equals("volume")) {
-                    binding.seekbarSpeaker.setProgress(((Double)((Map)map.get("data")).get("speaker")).intValue());
-                    binding.seekbarRecorder.setProgress(((Double)((Map)map.get("data")).get("recorder")).intValue());
-                } else if (map.get("action").toString().equals("all modules")) {
-                    String dataJson = gson.toJson(map.get("data"));
-                    Type moduleListType = new TypeToken<List<ModuleModel>>() {}.getType();
-                    List<ModuleModel> moduleList = gson.fromJson(dataJson, moduleListType);
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Map<String, Object> cmd = new LinkedTreeMap<>();
+                cmd.put("action", "request speaker volume");
+                cmd.put("data", binding.seekbarSpeaker.getProgress());
+                websocketViewModel.sendMessage(gson.toJson(cmd));
+            }
+        });
 
-                    initAllModules(moduleList);
-                } else if (map.get("action").toString().equals("modules by page")) {
+        binding.seekbarRecorder.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                binding.recorderValue.setText(String.valueOf(binding.seekbarRecorder.getProgress()));
+            }
 
-                }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Map<String, Object> cmd = new LinkedTreeMap<>();
+                cmd.put("action", "request recorder volume");
+                cmd.put("data", binding.seekbarRecorder.getProgress());
+                websocketViewModel.sendMessage(gson.toJson(cmd));
             }
         });
     }
 
-    private void initAllModules(List<ModuleModel> moduleList) {
-        ModuleAdapter moduleAdapter = new ModuleAdapter(moduleList, module -> {
-            //navigate to edit config fragment
-            Log.d("test", "module is click: " + module);
+    public void initConnectionState() {
+        CountDownTimer countDownTimer = new CountDownTimer(3000, 1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                if (url != null) {
+                    websocketViewModel.connect(url);
+                }
+            }
+        };
+
+
+        websocketViewModel.getConnectionStateLiveData().observe(getViewLifecycleOwner(), connectionState -> {
+            switch (connectionState) {
+                case CONNECTING:
+                    binding.lostConnectionLayout.setVisibility(View.VISIBLE);
+                    break;
+                case DISCONNECTED:
+                    countDownTimer.start();
+                    break;
+                case CONNECTED:
+                    countDownTimer.cancel();
+                    binding.lostConnectionLayout.setVisibility(View.GONE);
+                default:
+            }
         });
-        binding.moduleList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
-        binding.moduleList.setAdapter(null);
-        binding.moduleList.setAdapter(moduleAdapter);
     }
 
-    public void initModuleByPage(List<ModulesByPageModel> itemList, int page, int totalPage) {
-        binding.pageStart.setText(String.valueOf(page + 1));
-        binding.pageEnd.setText(String.valueOf(totalPage));
-        ModuleByPageAdapter adapter = new ModuleByPageAdapter(itemList);
-        binding.moduleByPageList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
-        binding.moduleByPageList.setAdapter(null);
-        binding.moduleByPageList.setAdapter(adapter);
+    private void initAllModules() {
+        websocketViewModel.getAllModuleLiveData().observe(getViewLifecycleOwner(), moduleList -> {
+            ModuleAdapter moduleAdapter = new ModuleAdapter(moduleList, module -> {
+                //navigate to edit config fragment
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("module", module);
+                EditConfigFragment editConfigFragment = new EditConfigFragment();
+                editConfigFragment.setArguments(bundle);
+
+                FragmentManager fragmentManager = getParentFragmentManager();
+                fragmentManager
+                        .beginTransaction()
+                        .replace(R.id.main, editConfigFragment)
+                        .addToBackStack(null)
+                        .commit();
+            });
+            binding.moduleList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
+            binding.moduleList.setAdapter(null);
+            binding.moduleList.setAdapter(moduleAdapter);
+        });
+    }
+
+    public void initModuleByPage() {
+        websocketViewModel.getModulesByPageLiveData().observe(getViewLifecycleOwner(), modulesByPageResponse -> {
+            binding.pageStart.setText(String.valueOf(modulesByPageResponse.getPage() + 1));
+            binding.pageEnd.setText(String.valueOf(modulesByPageResponse.getTotalPage()));
+            ModuleByPageAdapter adapter = new ModuleByPageAdapter(modulesByPageResponse.getPageModules(), modulesByPage -> {
+                Map<String, Object> payload = new LinkedTreeMap<>();
+                List<ModulesByPageModel> modules = new ArrayList<>();
+                modules.add(modulesByPage);
+
+                payload.put("action", "request update modules");
+                payload.put("data", modules);
+                websocketViewModel.sendMessage(gson.toJson(payload));
+            });
+            binding.moduleByPageList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
+            binding.moduleByPageList.setAdapter(null);
+            binding.moduleByPageList.setAdapter(adapter);
+        });
+
+        binding.previousPageBtn.setOnClickListener(view -> {
+            Map<String, String> cmd = new LinkedTreeMap<>();
+            cmd.put("action", "request previous page");
+            websocketViewModel.sendMessage(gson.toJson(cmd));
+        });
+
+        binding.nextPageBtn.setOnClickListener(view -> {
+            Map<String, String> cmd = new LinkedTreeMap<>();
+            cmd.put("action", "request next page");
+            websocketViewModel.sendMessage(gson.toJson(cmd));
+        });
+    }
+
+    public void handleSystemBtn() {
+        binding.restartBtn.setOnClickListener(view -> {
+            Map<String, String> cmd = new LinkedTreeMap<>();
+            cmd.put("action", "reboot magic mirror");
+            websocketViewModel.sendMessage(gson.toJson(cmd));
+        });
     }
 }
