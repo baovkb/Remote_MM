@@ -44,6 +44,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:endIconScaleType="center"
                 android:layout_marginHorizontal="40dp"
                 style="@style/text_input">
 
@@ -65,6 +66,13 @@
                 android:paddingHorizontal="8dp"
                 android:layout_marginTop="16dp"
                 android:text="@string/text_connect" />
+
+            <ImageView
+                android:id="@+id/qrBtn"
+                android:layout_marginTop="36dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/qr_code" />
 
         </LinearLayout>
 
