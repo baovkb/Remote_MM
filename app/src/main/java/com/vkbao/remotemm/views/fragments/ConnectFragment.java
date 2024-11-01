@@ -2,6 +2,7 @@ package com.vkbao.remotemm.views.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
@@ -117,7 +118,8 @@ public class ConnectFragment extends Fragment {
             websocketViewModel.connect(url);
         });
 
-        binding.qrBtn.setOnClickListener(view -> {
+
+        binding.inputAddress.setEndIconOnClickListener(view -> {
             Intent intent = new Intent(getActivity(), ScanQrActivity.class);
             someActivityResultLauncher.launch(intent);
         });
