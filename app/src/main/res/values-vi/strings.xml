@@ -4,8 +4,11 @@
 
 <!--    connect fragment-->
     <string name="text_hint_connect">Nhập địa chỉ của server</string>
+    <string name="text_hint_username">Tên người dùng</string>
+    <string name="text_hint_password">Mật khẩu</string>
     <string name="text_connect">Kết nối</string>
     <string name="toast_connect_fail">Không thể kết nối đến server</string>
+    <string name="toast_authen_failed">Tên tài khoản hoặc mật khẩu không đúng</string>
     <string name="toast_disconnect">Mất kết nối</string>
     <string name="toast_wrong_url">Url không hợp lệ</string>
 

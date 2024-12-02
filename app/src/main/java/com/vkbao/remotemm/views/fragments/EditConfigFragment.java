@@ -38,6 +38,7 @@ import com.vkbao.remotemm.views.activities.MainActivity;
 import com.vkbao.remotemm.views.dialogs.ConfirmDialog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -271,101 +272,12 @@ public class EditConfigFragment extends Fragment {
                 }
 
                 currentContainer.addView(innerContainer);
+
+                int marginTopOtherEntry = Helper.convertDpToPx(requireContext(), 6);
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) innerContainer.getLayoutParams();
+                params.setMargins(0, 0, 0 ,marginTopOtherEntry);
+                innerContainer.setLayoutParams(params);
             }
-        }
-    }
-
-    public void valueRecursive(Map<String, Object> value, ViewGroup container) {
-        for (Map.Entry<String, Object> entry: value.entrySet()) {
-            LinearLayout innerContainer = new LinearLayout(getContext());
-            innerContainer.setOrientation(LinearLayout.HORIZONTAL);
-            int paddingInPx = (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    8,
-                    getResources().getDisplayMetrics()
-            );
-            innerContainer.setPadding(paddingInPx, 0, paddingInPx, 0);
-
-            //key
-            TextView keyTV = new TextView(getContext());
-            keyTV.setText(entry.getKey());
-            keyTV.setTextAppearance(R.style.text_key);
-            innerContainer.addView(keyTV);
-
-            //value
-            if (entry.getValue() instanceof Map) {
-                innerContainer.setOrientation(LinearLayout.VERTICAL);
-
-                LinearLayout nestedContainer = new LinearLayout(getContext());
-                nestedContainer.setOrientation(LinearLayout.VERTICAL);
-                innerContainer.addView(nestedContainer);
-                valueRecursive(
-                        (Map<String, Object>) entry.getValue(),
-                        nestedContainer);
-            } else {
-                if (entry.getValue() instanceof Boolean) {
-                    Spinner spinner = new Spinner(getContext());
-                    spinner.setPadding(paddingInPx, 0, 0, 0);
-
-                    ArrayAdapter<String> spinnerBoolAdapter = new ArrayAdapter<>(
-                            getContext(),
-                            R.layout.position_item,
-                            new String[] {"false", "true"});
-                    spinnerBoolAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                            entry.setValue(i != 0);
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> adapterView) {
-
-                        }
-                    });
-                    spinner.setAdapter(spinnerBoolAdapter);
-                    spinner.setSelection(((Boolean) entry.getValue()) ? 1 : 0);
-                    innerContainer.addView(spinner);
-                } else {
-                    ConfigValueBinding configValueBinding = ConfigValueBinding.inflate(LayoutInflater.from(getContext()), innerContainer, false);
-                    if (entry.getValue() == null) {
-                        configValueBinding.value.setText("null");
-                    } else {
-                        configValueBinding.value.setText(entry.getValue().toString());
-                    }
-                    configValueBinding.value.addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable editable) {
-                            try {
-                                if (entry.getValue() instanceof Double) {
-                                    entry.setValue(Double.valueOf(editable.toString()));
-                                } else if (entry.getValue() instanceof Integer) {
-                                    entry.setValue(Integer.valueOf(editable.toString()));
-                                } else if (entry.getValue() instanceof ArrayList) {
-
-                                } else if (entry.getValue() instanceof String) {
-                                    entry.setValue(editable.toString());
-                                }
-                            } catch (Exception e) {
-                                configValueBinding.value.setError("");
-                            }
-                        }
-                    });
-                    innerContainer.addView(configValueBinding.getRoot());
-                }
-            }
-
-            container.addView(innerContainer);
         }
     }
 }

@@ -60,10 +60,13 @@ public class WebsocketClientManager {
 
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
+                messageLiveData.postValue("opened");
             }
 
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                if (code == 1000) return;
+
                 messageLiveData.postValue("disconnected");
             }
         });

@@ -3,8 +3,11 @@
 
     <!--    connect fragment-->
     <string name="text_hint_connect">Enter address of server</string>
+    <string name="text_hint_username">Username</string>
+    <string name="text_hint_password">Password</string>
     <string name="text_connect">Connect</string>
     <string name="toast_connect_fail">Cannot connect to server</string>
+    <string name="toast_authen_failed">Username or password is incorrect</string>
     <string name="toast_disconnect">Lost connection</string>
     <string name="toast_wrong_url">Url is invalid</string>
 

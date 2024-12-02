@@ -45,6 +45,8 @@ public class MainFragment extends Fragment {
     private FragmentMainBinding binding;
     private WebsocketViewModel websocketViewModel;
     private String url;
+    private String username;
+    private String password;
     private Gson gson;
 
     private static final String TAG = "MainFragment";
@@ -74,6 +76,8 @@ public class MainFragment extends Fragment {
 
         if (getArguments() != null) {
             url = getArguments().getString("url");
+            username = getArguments().getString("username");
+            password = getArguments().getString("password");
         }
 
         ((MainActivity)getActivity()).setSupportActionBar(binding.toolbar);
@@ -82,11 +86,18 @@ public class MainFragment extends Fragment {
 
         websocketViewModel = new ViewModelProvider(requireActivity()).get(WebsocketViewModel.class);
 
+        getFirstTimeData();
         initConnectionState();
         initVolume();
         initModuleByPage();
         initAllModules();
         handleSystemBtn();
+    }
+
+    private void getFirstTimeData() {
+        Map<String, Object> cmd = new LinkedTreeMap<>();
+        cmd.put("action", "request system info");
+        websocketViewModel.sendMessage(gson.toJson(cmd));
     }
 
     public void initVolume() {
@@ -161,6 +172,22 @@ public class MainFragment extends Fragment {
                     break;
                 case DISCONNECTED:
                     countDownTimer.start();
+                    break;
+                case UNAUTHENTICATED:
+                    Map<String, Object> msg = new LinkedTreeMap<>();
+                    msg.put("action", "login");
+                    msg.put("username", username);
+                    msg.put("password", password);
+                    websocketViewModel.sendMessage(gson.toJson(msg));
+                    break;
+
+                case AUTHENTICAION_FAILED:
+                    Toast.makeText(requireActivity(), getResources().getString(R.string.toast_authen_failed), Toast.LENGTH_SHORT).show();
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    fragmentManager
+                            .beginTransaction()
+                            .replace(R.id.main, new ConnectFragment())
+                            .commit();
                     break;
                 case CONNECTED:
                     countDownTimer.cancel();

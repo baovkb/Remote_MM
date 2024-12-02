@@ -1,6 +1,7 @@
 package com.vkbao.remotemm.viewmodel;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -57,10 +58,10 @@ public class WebsocketViewModel extends AndroidViewModel {
                 case "disconnected":
                     connectionStateLiveData.postValue(CONNECTION_STATE.DISCONNECTED);
                     break;
+                case "opened":
+                    connectionStateLiveData.postValue(CONNECTION_STATE.UNAUTHENTICATED);
+                    break;
                 default:
-                    //update connection state
-                    connectionStateLiveData.postValue(CONNECTION_STATE.CONNECTED);
-
                     Map<String, Object> map;
                     String action = null;
                     try {
@@ -72,6 +73,12 @@ public class WebsocketViewModel extends AndroidViewModel {
                     }
 
                     switch (action) {
+                        case "authenticated":
+                            connectionStateLiveData.postValue(CONNECTION_STATE.CONNECTED);
+                            break;
+                        case "authentication failure":
+                            connectionStateLiveData.postValue(CONNECTION_STATE.AUTHENTICAION_FAILED);
+                            break;
                         case "system info":
                             try {
                                 SystemInfoResponse sysInfo = gson.fromJson(message, SystemInfoResponse.class);
@@ -146,6 +153,8 @@ public class WebsocketViewModel extends AndroidViewModel {
         DISCONNECTED,
         CONNECTING,
         CONNECTED,
-        ERROR_URL
+        ERROR_URL,
+        UNAUTHENTICATED,
+        AUTHENTICAION_FAILED
     }
 }
