@@ -3,6 +3,7 @@
     <style name="Base.Theme.RemoteMM" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="actionMenuTextColor">@color/white</item>
     </style>
 
     <style name="Theme.RemoteMM" parent="Base.Theme.RemoteMM" />
@@ -10,6 +11,22 @@
     <style name="button">
         <item name="android:background">@drawable/blue_bg</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="text_input">
+        <item name="boxStrokeErrorColor">@color/red</item>
+        <item name="boxStrokeColor">@color/text_input_state</item>
+        <item name="hintTextColor">@color/blue</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+    </style>
+
+    <style name="text_key">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/dark_blue</item>
     </style>
 
 </resources>
