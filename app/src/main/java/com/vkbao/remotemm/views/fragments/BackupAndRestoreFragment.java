@@ -63,7 +63,7 @@ public class BackupAndRestoreFragment extends Fragment {
     private void initAddBtn() {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.addBtn.getLayoutParams();
         int fabSize = Helper.convertDpToPx(requireContext(), 56);
-        int topbarSize = Helper.convertDpToPx(requireContext(), 128);
+        int topbarSize = Helper.convertDpToPx(requireContext(), 140);
         int screenHeight = Helper.getScreenHeight(requireContext());
         int margin = screenHeight - fabSize - topbarSize;
 

@@ -241,6 +241,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/moduleList"
                 android:layout_width="match_parent"
+                android:minHeight="256dp"
                 android:layout_height="match_parent" />
         </LinearLayout>
     </LinearLayout>
