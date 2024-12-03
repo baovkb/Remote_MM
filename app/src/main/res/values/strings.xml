@@ -11,6 +11,11 @@
     <string name="toast_disconnect">Lost connection</string>
     <string name="toast_wrong_url">Url is invalid</string>
 
+    <string name="text_home">Home</string>
+    <string name="text_backup_and_restore">Backup &amp; Restore</string>
+    <string name="menu_backupMenu_restore">Restore</string>
+    <string name="menu_backupMenu_delete">Delete</string>
+
     <!--    main fragment-->
     <string name="main_restart">Restart</string>
     <string name="volume_group">Volume</string>
@@ -28,4 +33,6 @@
     <string name="toast_fail_start_cam">Fail to start camera</string>
     <string name="toast_cam_permission">Camera permission is required</string>
     <string name="toast_scan_qr_error">Cannot scan QR</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -30,6 +30,7 @@ public class WebsocketViewModel extends AndroidViewModel {
     private MutableLiveData<List<ModuleModel>> allModuleLiveData;
     private MutableLiveData<ModulesByPageResponse> modulesByPageLiveData;
     private MutableLiveData<VolumeModel> volumeLiveData;
+    private MutableLiveData<List<String>> backupFileLiveData;
 
     private final Gson gson;
 
@@ -41,6 +42,7 @@ public class WebsocketViewModel extends AndroidViewModel {
         modulesByPageLiveData = new MutableLiveData<>();
         volumeLiveData = new MutableLiveData<>();
         connectionStateLiveData = new MediatorLiveData<>();
+        backupFileLiveData = new MutableLiveData<>();
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Map.class, new CustomJson());
@@ -119,6 +121,15 @@ public class WebsocketViewModel extends AndroidViewModel {
                                 modulesByPageLiveData.postValue(gson.fromJson(dataJson, ModulesByPageResponse.class));
                             } catch (Exception ignored) {}
                             break;
+                        case "backup files":
+                            try {
+                                String dataJson = gson.toJson(map.get("data"));
+                                Type fileListType = new TypeToken<List<String>>() {
+                                }.getType();
+                                backupFileLiveData.postValue(gson.fromJson(dataJson, fileListType));
+                            } catch (Exception ignored) {
+                            }
+                            break;
                         default:
                     }
             }
@@ -143,6 +154,10 @@ public class WebsocketViewModel extends AndroidViewModel {
 
     public MutableLiveData<ModulesByPageResponse> getModulesByPageLiveData() {
         return modulesByPageLiveData;
+    }
+
+    public LiveData<List<String>> getBackupFileLiveData() {
+        return backupFileLiveData;
     }
 
     public MutableLiveData<VolumeModel> getVolumeLiveData() {

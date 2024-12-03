@@ -12,6 +12,11 @@
     <string name="toast_disconnect">Mất kết nối</string>
     <string name="toast_wrong_url">Url không hợp lệ</string>
 
+    <string name="text_home">Trang chủ</string>
+    <string name="text_backup_and_restore">Sao lưu &amp; Khôi phục</string>
+    <string name="menu_backupMenu_restore">Khôi phục</string>
+    <string name="menu_backupMenu_delete">Xóa</string>
+
 <!--    main fragment-->
     <string name="main_restart">Khởi động lại</string>
     <string name="volume_group">Âm lượng</string>

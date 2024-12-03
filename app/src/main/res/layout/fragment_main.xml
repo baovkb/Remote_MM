@@ -17,271 +17,45 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
-                app:navigationIcon="@drawable/ic_action_menu"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:titleTextColor="@color/white"
-                android:background="@color/blue">
-            </androidx.appcompat.widget.Toolbar>
+                android:background="@color/blue"
+                app:navigationIcon="@drawable/ic_action_menu"
+                app:titleTextColor="@color/white" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/blue"
+                app:tabIndicatorColor="@color/white"
+                app:tabMode="scrollable"
+                app:tabSelectedTextColor="@color/white"
+                app:tabTextColor="@color/white" />
 
             <LinearLayout
                 android:id="@+id/lost_connection_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/red"
-                    android:text="@string/toast_disconnect"/>
+                    android:text="@string/toast_disconnect"
+                    android:textColor="@color/red" />
+
                 <ProgressBar
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_marginStart="8dp"/>
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
 
-            <LinearLayout
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewpager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="18dp"
-                    android:orientation="vertical">
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/restart_btn"
-                        android:paddingHorizontal="8dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/button"
-                        android:text="@string/main_restart" />
-
-                </LinearLayout>
-            </LinearLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="16dp"
-                android:background="?android:attr/listDivider" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginHorizontal="16dp"
-                android:background="@drawable/outline_bg"
-                android:layout_marginVertical="18dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/dark_blue"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/volume_group"/>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:paddingVertical="16dp"
-                    android:paddingHorizontal="8dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:minWidth="65dp"
-                        android:id="@+id/speakerTV"
-                        android:layout_width="wrap_content"
-                        android:text="@string/speaker"
-                        android:layout_alignParentStart="true"
-                        android:textSize="16dp"
-                        android:textColor="@color/dark_blue"
-                        android:layout_height="wrap_content"/>
-
-                    <androidx.appcompat.widget.AppCompatSeekBar
-                        android:id="@+id/seekbar_speaker"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:min="0"
-                        android:progress="0"
-                        android:progressBackgroundTint="@color/gray"
-                        android:progressTint="@color/dark_blue"
-                        android:thumbTint="@color/dark_blue"
-                        android:layout_toEndOf="@+id/speakerTV"
-                        android:layout_toStartOf="@+id/speaker_value" />
-                    <TextView
-                        android:id="@+id/speaker_value"
-                        android:layout_width="wrap_content"
-                        android:text="0"
-                        android:minWidth="26dp"
-                        android:textAlignment="textEnd"
-                        android:textSize="16dp"
-                        android:layout_alignParentEnd="true"
-                        android:textColor="@color/dark_blue"
-                        android:layout_height="wrap_content"/>
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:paddingVertical="16dp"
-                    android:paddingHorizontal="8dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/recorderTV"
-                        android:minWidth="65dp"
-                        android:layout_width="wrap_content"
-                        android:text="@string/recorder"
-                        android:textSize="16sp"
-                        android:layout_alignParentStart="true"
-                        android:textColor="@color/dark_blue"
-                        android:layout_height="wrap_content"/>
-
-                    <androidx.appcompat.widget.AppCompatSeekBar
-                        android:id="@+id/seekbar_recorder"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:min="0"
-                        android:progress="0"
-                        android:progressBackgroundTint="@color/gray"
-                        android:progressTint="@color/dark_blue"
-                        android:thumbTint="@color/dark_blue"
-                        android:layout_toEndOf="@+id/recorderTV"
-                        android:layout_toStartOf="@+id/recorder_value" />
-
-                    <TextView
-                        android:id="@+id/recorder_value"
-                        android:layout_width="wrap_content"
-                        android:text="0"
-                        android:textAlignment="textEnd"
-                        android:textSize="16dp"
-                        android:minWidth="26dp"
-                        android:layout_alignParentEnd="true"
-                        android:textColor="@color/dark_blue"
-                        android:layout_height="wrap_content"/>
-                </RelativeLayout>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="16dp"
-                android:background="?android:attr/listDivider" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginHorizontal="16dp"
-                android:background="@drawable/outline_bg"
-                android:layout_marginVertical="18dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textColor="@color/dark_blue"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/modules_by_page_group"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/moduleByPageList"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-
-                <LinearLayout
-                    android:layout_marginVertical="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:id="@+id/previous_page_btn"
-                        android:layout_marginEnd="16dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_action_arrow_back_ios" />
-
-                    <TextView
-                        android:id="@+id/pageStart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textStyle="bold"
-                        android:textColor="@color/dark_blue"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="..."
-                        android:textStyle="bold"
-                        android:textColor="@color/dark_blue"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/pageEnd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textStyle="bold"
-                        android:textColor="@color/dark_blue"
-                        android:textSize="18sp" />
-
-                    <ImageView
-                        android:id="@+id/next_page_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:src="@drawable/ic_action_arrow_forward_ios" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="16dp"
-                android:background="?android:attr/listDivider" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginHorizontal="16dp"
-                android:background="@drawable/outline_bg"
-                android:layout_marginVertical="18dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/dark_blue"
-                    android:layout_marginBottom="8dp"
-                    android:textStyle="bold"
-                    android:text="@string/modules_group"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/moduleList"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </ScrollView>
-
-
 </FrameLayout>
