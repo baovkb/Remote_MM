@@ -2,13 +2,26 @@ package com.vkbao.remotemm.helper;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.util.TypedValue;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.vkbao.remotemm.model.FileInfo;
+import com.vkbao.remotemm.model.SuccessResponse;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class Helper {
     public static int convertDpToPx(Context context, int dp) {
@@ -34,5 +47,36 @@ public class Helper {
         display.getMetrics(displayMetrics);
 
         return displayMetrics.heightPixels;
+    }
+
+    public static interface VoidCallback {
+        public void invoke();
+    }
+
+    public static <T> CompletableFuture<ApiState<T>> apiHandler(ApiHandler<T> apiHandler) {
+        return CompletableFuture.supplyAsync(() -> {
+            CompletableFuture<ApiState<T>> resultFuture = new CompletableFuture<>();
+
+            try {
+                Response<T> response = apiHandler.apiCall().execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    resultFuture.complete(ApiState.success(response.body()));
+                } else {
+                    String errorBody = response.errorBody().string();
+                    JSONObject jsonObject = new JSONObject(errorBody);
+                    String errorMessage = jsonObject.optString("message", "Unknown error");
+                    resultFuture.complete(ApiState.error(errorMessage));
+                }
+            } catch (IOException | JSONException e) {
+                resultFuture.complete(ApiState.error(e.getMessage()));
+            }
+
+            return resultFuture;
+        }).thenCompose(result -> result);
+    }
+
+    public static interface ApiHandler<T> {
+        public Call<T> apiCall();
     }
 }

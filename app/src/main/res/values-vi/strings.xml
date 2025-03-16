@@ -16,6 +16,7 @@
     <string name="text_backup_and_restore">Sao lưu &amp; Khôi phục</string>
     <string name="menu_backupMenu_restore">Khôi phục</string>
     <string name="menu_backupMenu_delete">Xóa</string>
+    <string name="text_face">Khuôn mặt</string>
 
 <!--    main fragment-->
     <string name="main_restart">Khởi động lại</string>

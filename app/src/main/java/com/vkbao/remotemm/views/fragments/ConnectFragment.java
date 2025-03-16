@@ -116,7 +116,7 @@ public class ConnectFragment extends Fragment {
                     msg.put("password", password);
                     websocketViewModel.sendMessage(gson.toJson(msg));
                     break;
-                case AUTHENTICAION_FAILED:
+                case AUTHENTICATION_FAILED:
                     Toast.makeText(requireActivity(), getResources().getString(R.string.toast_authen_failed), Toast.LENGTH_SHORT).show();
                     binding.progressConnect.setVisibility(View.GONE);
                     activeConnectBtn();

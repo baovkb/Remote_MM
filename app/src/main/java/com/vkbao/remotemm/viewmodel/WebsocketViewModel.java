@@ -22,6 +22,8 @@ import com.vkbao.remotemm.model.VolumeModel;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class WebsocketViewModel extends AndroidViewModel {
     private WebsocketClientManager websocketClientManager;
@@ -70,7 +72,9 @@ public class WebsocketViewModel extends AndroidViewModel {
                         map = gson.fromJson(message, new TypeToken<Map<String, Object>>() {
                         }.getType());
                         action = map.get("action").toString();
+                        Log.d("action ws", action);
                     } catch (Exception ignored) {
+                        Log.d("error map ws msg", ignored.getMessage());
                         break;
                     }
 
@@ -79,7 +83,7 @@ public class WebsocketViewModel extends AndroidViewModel {
                             connectionStateLiveData.postValue(CONNECTION_STATE.CONNECTED);
                             break;
                         case "authentication failure":
-                            connectionStateLiveData.postValue(CONNECTION_STATE.AUTHENTICAION_FAILED);
+                            connectionStateLiveData.postValue(CONNECTION_STATE.AUTHENTICATION_FAILED);
                             break;
                         case "system info":
                             try {
@@ -170,6 +174,6 @@ public class WebsocketViewModel extends AndroidViewModel {
         CONNECTED,
         ERROR_URL,
         UNAUTHENTICATED,
-        AUTHENTICAION_FAILED
+        AUTHENTICATION_FAILED
     }
 }

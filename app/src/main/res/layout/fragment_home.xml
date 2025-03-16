@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -67,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:text="@string/speaker"
                     android:layout_alignParentStart="true"
-                    android:textSize="16dp"
+                    android:textSize="16sp"
                     android:textColor="@color/dark_blue"
                     android:layout_height="wrap_content"/>
 
@@ -241,10 +242,10 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/moduleList"
                 android:layout_width="match_parent"
-                android:minHeight="256dp"
+                android:nestedScrollingEnabled="false"
                 android:layout_height="match_parent" />
         </LinearLayout>
     </LinearLayout>
 
 
-</FrameLayout>
+</androidx.core.widget.NestedScrollView>

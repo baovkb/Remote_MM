@@ -15,6 +15,7 @@
     <string name="text_backup_and_restore">Backup &amp; Restore</string>
     <string name="menu_backupMenu_restore">Restore</string>
     <string name="menu_backupMenu_delete">Delete</string>
+    <string name="text_face">Face</string>
 
     <!--    main fragment-->
     <string name="main_restart">Restart</string>

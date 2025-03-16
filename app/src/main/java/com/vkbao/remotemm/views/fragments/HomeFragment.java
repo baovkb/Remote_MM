@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,11 +56,11 @@ public class HomeFragment extends Fragment {
 
         websocketViewModel = new ViewModelProvider(requireActivity()).get(WebsocketViewModel.class);
 
-        getFirstTimeData();
         initVolume();
         initModuleByPage();
         initAllModules();
         handleSystemBtn();
+        getFirstTimeData();
     }
 
     private void getFirstTimeData() {
@@ -119,6 +120,8 @@ public class HomeFragment extends Fragment {
 
     private void initAllModules() {
         websocketViewModel.getAllModuleLiveData().observe(getViewLifecycleOwner(), moduleList -> {
+            Log.d("module list", String.valueOf(moduleList.size()));
+
             ModuleAdapter moduleAdapter = new ModuleAdapter(moduleList, module -> {
                 //navigate to edit config fragment
                 Bundle bundle = new Bundle();
@@ -126,12 +129,16 @@ public class HomeFragment extends Fragment {
                 EditConfigFragment editConfigFragment = new EditConfigFragment();
                 editConfigFragment.setArguments(bundle);
 
-                FragmentManager fragmentManager = getParentFragmentManager();
-                fragmentManager
-                        .beginTransaction()
-                        .replace(R.id.main, editConfigFragment)
-                        .addToBackStack(null)
-                        .commit();
+                Fragment frParent = getParentFragment();
+                if (frParent != null) {
+                    FragmentManager fragmentManager = frParent.getParentFragmentManager();
+                    fragmentManager
+                            .beginTransaction()
+                            .replace(R.id.main, editConfigFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+
             });
             binding.moduleList.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false));
             binding.moduleList.setAdapter(null);

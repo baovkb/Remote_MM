@@ -17,7 +17,10 @@ public class BackupFileAdapter extends RecyclerView.Adapter<BackupFileAdapter.Ba
     private List<String> files;
     private OnClickItem<String> listener;
 
-    public BackupFileAdapter(List<String> files, OnClickItem<String> listener) {
+    public BackupFileAdapter(
+            List<String> files,
+            OnClickItem<String> listener
+    ) {
         this.files = files;
         this.listener = listener;
     }

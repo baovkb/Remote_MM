@@ -43,6 +43,13 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.2.2")
     implementation ("androidx.camera:camera-lifecycle:1.2.2")
     implementation ("androidx.camera:camera-view:1.0.0-alpha30")
+
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    annotationProcessor ("com.google.dagger:dagger-compiler:2.44")
+
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
