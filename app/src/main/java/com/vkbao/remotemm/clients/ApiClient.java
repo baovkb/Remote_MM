@@ -1,6 +1,5 @@
 package com.vkbao.remotemm.clients;
 
-import com.google.gson.Gson;
 import com.vkbao.remotemm.helper.CustomInterceptor;
 
 import okhttp3.OkHttpClient;

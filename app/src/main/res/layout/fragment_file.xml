@@ -1,20 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:layout_marginHorizontal="16dp"
     tools:context=".views.fragments.FileFragment">
-    
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fileList"
         android:layout_width="match_parent"
-        android:layout_marginTop="18dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
     </androidx.recyclerview.widget.RecyclerView>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fabContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="26dp"
+        app:layout_constraintEnd_toEndOf="parent">
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addMainBtn"
+            style="@style/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_action_add" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addFolderBtn"
+            style="@style/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            app:fabCustomSize="45dp"
+            app:layout_constraintBottom_toTopOf="@id/addMainBtn"
+            app:layout_constraintEnd_toEndOf="@id/addMainBtn"
+            app:layout_constraintStart_toStartOf="@id/addMainBtn"
+            app:srcCompat="@drawable/new_folder" />
+
+        <TextView
+            android:id="@+id/addFolderTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fab_create_folder"
+            style="@style/fab_text"
+            app:layout_constraintTop_toTopOf="@+id/addFolderBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/addFolderBtn"
+            app:layout_constraintEnd_toStartOf="@+id/addFolderBtn">
+
+        </TextView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/uploadBtn"
+            style="@style/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_marginBottom="16dp"
+            app:fabCustomSize="45dp"
+            app:layout_constraintBottom_toTopOf="@id/addFolderBtn"
+            app:layout_constraintEnd_toEndOf="@id/addFolderBtn"
+            app:layout_constraintStart_toStartOf="@id/addFolderBtn"
+            app:srcCompat="@drawable/photo" />
+        <TextView
+            android:id="@+id/uploadTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/fab_text"
+            android:text="@string/fab_upload_images"
+            app:layout_constraintTop_toTopOf="@+id/uploadBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/uploadBtn"
+            app:layout_constraintEnd_toStartOf="@+id/uploadBtn">
+        </TextView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/encodeBtn"
+            style="@style/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_marginBottom="16dp"
+            app:fabCustomSize="45dp"
+            app:layout_constraintBottom_toTopOf="@id/uploadBtn"
+            app:layout_constraintEnd_toEndOf="@id/uploadBtn"
+            app:layout_constraintStart_toStartOf="@id/uploadBtn"
+            app:srcCompat="@drawable/encoder" />
+        <TextView
+            android:id="@+id/encodeTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/fab_text"
+            android:text="@string/encode_faces"
+            app:layout_constraintTop_toTopOf="@+id/encodeBtn"
+            app:layout_constraintBottom_toBottomOf="@+id/encodeBtn"
+            app:layout_constraintEnd_toStartOf="@+id/encodeBtn">
+        </TextView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

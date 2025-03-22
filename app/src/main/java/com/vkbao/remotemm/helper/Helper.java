@@ -2,6 +2,9 @@ package com.vkbao.remotemm.helper;
 
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.TypedValue;
 import android.util.DisplayMetrics;
@@ -14,12 +17,17 @@ import com.vkbao.remotemm.model.SuccessResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -78,5 +86,30 @@ public class Helper {
 
     public static interface ApiHandler<T> {
         public Call<T> apiCall();
+    }
+
+    public static String getRealPathFromURI(Context context, Uri uri) {
+        String result = null;
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            if (idx != -1) result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result != null ? result : uri.getPath();
+    }
+
+    public static List<MultipartBody.Part> prepareFileParts(Context context, List<Uri> fileUris) {
+        List<MultipartBody.Part> parts = new ArrayList<>();
+
+        for (Uri uri : fileUris) {
+            File file = new File(getRealPathFromURI(context, uri));
+            RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+            MultipartBody.Part part = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+            parts.add(part);
+        }
+
+        return parts;
     }
 }

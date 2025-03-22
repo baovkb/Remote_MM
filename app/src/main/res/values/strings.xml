@@ -34,6 +34,11 @@
     <string name="toast_fail_start_cam">Fail to start camera</string>
     <string name="toast_cam_permission">Camera permission is required</string>
     <string name="toast_scan_qr_error">Cannot scan QR</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="fab_create_folder">Add a new folder</string>
+    <string name="fab_upload_images">Upload images</string>
+    <string name="create_folder_menu_title">Enter folder name</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="encode_faces">Encode faces</string>
 </resources>

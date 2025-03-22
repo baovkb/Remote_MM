@@ -34,4 +34,11 @@
     <string name="toast_fail_start_cam">Lỗi khi khởi động camera</string>
     <string name="toast_cam_permission">Quyền truy cập vào camera là cần thiết</string>
     <string name="toast_scan_qr_error">Không thể quét QR</string>
+
+    <string name="fab_create_folder">Tạo thư mục</string>
+    <string name="fab_upload_images">Thêm hình ảnh</string>
+    <string name="create_folder_menu_title">Nhập tên thư mục</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Hủy</string>
+    <string name="encode_faces">Mã hóa khuôn mặt</string>
 </resources>

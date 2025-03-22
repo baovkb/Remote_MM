@@ -1,21 +1,35 @@
 package com.vkbao.remotemm.views.fragments;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.vkbao.remotemm.R;
@@ -25,20 +39,29 @@ import com.vkbao.remotemm.helper.ApiState;
 import com.vkbao.remotemm.helper.Helper;
 import com.vkbao.remotemm.helper.PathStandard;
 import com.vkbao.remotemm.model.FileInfo;
+import com.vkbao.remotemm.model.SuccessResponse;
 import com.vkbao.remotemm.viewmodel.FileViewModel;
 import com.vkbao.remotemm.viewmodel.PathFaceFileViewModel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.MultipartBody;
 
 public class FileFragment extends Fragment {
     private FragmentFileBinding binding;
     private FileViewModel fileViewModel;
     private PathFaceFileViewModel pathFaceFileViewModel;
+    private boolean shouldFabExpand = false;
+    private final int REQUEST_GALLERY_CODE = 11;
+    private ActivityResultLauncher<Intent> filePickerLauncher;
 
     public FileFragment() {
         // Required empty public constructor
+
     }
 
     @Override
@@ -64,6 +87,10 @@ public class FileFragment extends Fragment {
         initPath();
         initListFile();
         initDeleteFile();
+        initAddFolder();
+        initUploadImages();
+        initFloatingBtn();
+        initEncodeFaces();
     }
 
     private void initListFile() {
@@ -94,6 +121,7 @@ public class FileFragment extends Fragment {
                                 popupMenu.setOnMenuItemClickListener(menuItem -> {
                                     if (menuItem.getItemId() == R.id.action_delete) {
                                         String oldPath = pathFaceFileViewModel.getPath().getValue();
+                                        Log.d("old path" , oldPath);
                                         String newPath = PathStandard.concatPath(oldPath, item.getName());
 
                                         Log.d("path", newPath);
@@ -129,12 +157,142 @@ public class FileFragment extends Fragment {
         });
     }
 
-    public void initDeleteFile() {
+    private void initDeleteFile() {
         fileViewModel.getDeleteFileLiveData().observe(getViewLifecycleOwner(), apiState -> {
             if (apiState.status == ApiState.Status.SUCCESS) {
                 fileViewModel.getList(pathFaceFileViewModel.getPath().getValue());
             } else {
-                Log.d("delete error", apiState.message);
+                Toast.makeText(requireContext(), "Error: " + apiState.message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initAddFolder() {
+        fileViewModel.getCreateFolderLiveData().observe(getViewLifecycleOwner(), apiState -> {
+            if (apiState.status == ApiState.Status.SUCCESS) {
+                fileViewModel.getList(pathFaceFileViewModel.getPath().getValue());
+            } else {
+                Toast.makeText(requireContext(), "Error: " + apiState.message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initUploadImages() {
+        fileViewModel.getUploadImagesLiveData().observe(getViewLifecycleOwner(), apiState -> {
+            if (apiState.status == ApiState.Status.SUCCESS) {
+                fileViewModel.getList(pathFaceFileViewModel.getPath().getValue());
+            } else {
+                Toast.makeText(requireContext(), "Error: " + apiState.message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initFloatingBtn() {
+        binding.addMainBtn.setOnClickListener(view -> {
+            shouldFabExpand = !shouldFabExpand;
+            if (shouldFabExpand) {
+                expandFab();
+            } else {
+                shrinkFab();
+            }
+        });
+        if (shouldFabExpand) {
+            expandFab();
+        } else {
+            shrinkFab();
+        }
+
+        binding.addFolderBtn.setOnClickListener(view -> {
+            showInputDialog();
+        });
+
+        binding.uploadBtn.setOnClickListener(view -> {
+            selectImages();
+        });
+
+        binding.encodeBtn.setOnClickListener(view -> {
+            fileViewModel.encodeFaces();
+        });
+    }
+
+    private void showInputDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(getString(R.string.create_folder_menu_title));
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        builder.setView(input);
+
+        builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+            String value = input.getText().toString();
+            String currentPath = pathFaceFileViewModel.getPath().getValue();
+            String path = PathStandard.concatPath(currentPath, value);
+            fileViewModel.createFolder(path);
+        });
+
+        builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+            dialog.cancel();
+        });
+
+        builder.show();
+    }
+
+
+    private void shrinkFab() {
+        binding.addFolderBtn.setVisibility(View.GONE);
+        binding.addFolderTV.setVisibility(View.GONE);
+        binding.uploadBtn.setVisibility(View.GONE);
+        binding.uploadTV.setVisibility(View.GONE);
+        binding.encodeBtn.setVisibility(ViewGroup.GONE);
+        binding.encodeTV.setVisibility(ViewGroup.GONE);
+    }
+
+    private void expandFab() {
+        binding.addFolderBtn.setVisibility(View.VISIBLE);
+        binding.addFolderTV.setVisibility(View.VISIBLE);
+        binding.uploadBtn.setVisibility(View.VISIBLE);
+        binding.uploadTV.setVisibility(View.VISIBLE);
+        binding.encodeBtn.setVisibility(ViewGroup.VISIBLE);
+        binding.encodeTV.setVisibility(ViewGroup.VISIBLE);
+    }
+
+    private void selectImages() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setType("image/*");
+        filePickerLauncher.launch(intent);
+    }
+
+    {
+        filePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        List<Uri> fileUris = new ArrayList<>();
+                        ClipData clipData = result.getData().getClipData();
+                        if (clipData != null) {
+                            for (int i = 0; i < clipData.getItemCount(); i++) {
+                                fileUris.add(clipData.getItemAt(i).getUri());
+                            }
+                        } else {
+                            fileUris.add(result.getData().getData());
+                        }
+
+                        if (!fileUris.isEmpty()) {
+                            List<MultipartBody.Part> parts = Helper.prepareFileParts(requireContext(), fileUris);
+                            fileViewModel.uploadImages(parts, pathFaceFileViewModel.getPath().getValue());
+                        }
+                    }
+                }
+        );
+    }
+
+    private void initEncodeFaces() {
+        fileViewModel.getEncodeLiveData().observe(getViewLifecycleOwner(), apiState -> {
+            if (apiState.status == ApiState.Status.SUCCESS) {
+                Toast.makeText(requireContext(), "Error: " + apiState.data.getData(), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Error: " + apiState.message, Toast.LENGTH_SHORT).show();
             }
         });
     }

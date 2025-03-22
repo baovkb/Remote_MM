@@ -15,9 +15,9 @@ public class PathStandard {
         oldPath = standardize(oldPath);
         String newPath = "";
         if (oldPath.isEmpty()) {
-            newPath += path;
+            newPath = path;
         } else {
-            newPath = newPath + "/" + path;
+            newPath = oldPath + "/" + path;
         }
         return newPath;
     }

@@ -61,15 +61,6 @@ public class BackupAndRestoreFragment extends Fragment {
     }
 
     private void initAddBtn() {
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) binding.addBtn.getLayoutParams();
-        int fabSize = Helper.convertDpToPx(requireContext(), 56);
-        int topbarSize = Helper.convertDpToPx(requireContext(), 140);
-        int screenHeight = Helper.getScreenHeight(requireContext());
-        int margin = screenHeight - fabSize - topbarSize;
-
-        params.setMargins(0, margin, Helper.convertDpToPx(requireContext(), 48), 0);
-        binding.addBtn.setLayoutParams(params);
-
         binding.addBtn.setOnClickListener(view -> {
             Map<String, Object> cmd = new LinkedTreeMap<>();
             cmd.put("action", "request backup");
