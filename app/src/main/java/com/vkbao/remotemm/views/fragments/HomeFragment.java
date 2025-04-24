@@ -27,6 +27,8 @@ import com.vkbao.remotemm.viewmodel.WebsocketViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
@@ -150,7 +152,10 @@ public class HomeFragment extends Fragment {
         websocketViewModel.getModulesByPageLiveData().observe(getViewLifecycleOwner(), modulesByPageResponse -> {
             binding.pageStart.setText(String.valueOf(modulesByPageResponse.getPage() + 1));
             binding.pageEnd.setText(String.valueOf(modulesByPageResponse.getTotalPage()));
-            ModuleByPageAdapter adapter = new ModuleByPageAdapter(modulesByPageResponse.getPageModules(), modulesByPage -> {
+            List<ModulesByPageModel> tmp = modulesByPageResponse.getPageModules().stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            ModuleByPageAdapter adapter = new ModuleByPageAdapter(tmp, modulesByPage -> {
                 Map<String, Object> payload = new LinkedTreeMap<>();
                 List<ModulesByPageModel> modules = new ArrayList<>();
                 modules.add(modulesByPage);

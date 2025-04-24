@@ -1,7 +1,5 @@
 package com.vkbao.remotemm.views.fragments;
 
-import static android.app.Activity.RESULT_OK;
-
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
@@ -13,10 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -56,12 +51,10 @@ public class FileFragment extends Fragment {
     private FileViewModel fileViewModel;
     private PathFaceFileViewModel pathFaceFileViewModel;
     private boolean shouldFabExpand = false;
-    private final int REQUEST_GALLERY_CODE = 11;
     private ActivityResultLauncher<Intent> filePickerLauncher;
 
     public FileFragment() {
         // Required empty public constructor
-
     }
 
     @Override
