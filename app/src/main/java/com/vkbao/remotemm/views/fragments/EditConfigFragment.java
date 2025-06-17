@@ -8,6 +8,8 @@ import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,9 +31,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vkbao.remotemm.R;
+import com.vkbao.remotemm.adapter.JsonTreeAdapter;
 import com.vkbao.remotemm.databinding.ConfigValueBinding;
 import com.vkbao.remotemm.databinding.FragmentEditConfigBinding;
 import com.vkbao.remotemm.helper.Helper;
+import com.vkbao.remotemm.model.JsonNode;
 import com.vkbao.remotemm.model.ModuleModel;
 import com.vkbao.remotemm.viewmodel.WebsocketViewModel;
 import com.vkbao.remotemm.views.activities.MainActivity;
@@ -39,14 +43,19 @@ import com.vkbao.remotemm.views.dialogs.ConfirmDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class EditConfigFragment extends Fragment {
     private FragmentEditConfigBinding binding;
     private ModuleModel module;
     private WebsocketViewModel websocketViewModel;
+    private JsonNode root;
 
     private static final String TAG = "EditConfigFragment";
 
@@ -85,8 +94,19 @@ public class EditConfigFragment extends Fragment {
             initMenuToolbar();
             binding.moduleName.setText(module.getModule());
             initPosition();
-            initConfig(module.getConfig());
+//            initConfig(module.getConfig());
+            initJson();
         }
+    }
+
+    private void initJson() {
+        RecyclerView recyclerView = binding.configTree;
+        JsonTreeAdapter adapter = new JsonTreeAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
+
+        JsonNode rootNode = buildJsonNodeTree(module.getConfig());
+        adapter.setRoot(rootNode);
     }
 
     public void initMenuToolbar() {
@@ -114,11 +134,17 @@ public class EditConfigFragment extends Fragment {
         confirmDialog.setMessage(getString(R.string.confirm_save_config));
         confirmDialog.setPositiveBtn(() -> {
             Gson gson = new Gson();
-            Map<String, Object> payload = new LinkedTreeMap<>();
-            payload.put("action", "request save config");
-            payload.put("data", module);
+            if (root != null) {
+                Map<String, Object> newConfig = (Map<String, Object>) jsonNodeToObject(root);
+                Log.d(TAG, newConfig.toString());
 
-            websocketViewModel.sendMessage(gson.toJson(payload));
+                Map<String, Object> payload = new LinkedTreeMap<>();
+                payload.put("action", "request save config");
+                module.setConfig(newConfig);
+                payload.put("data", module);
+
+                websocketViewModel.sendMessage(gson.toJson(payload));
+            }
         });
 
         confirmDialog.show(getChildFragmentManager(), null);
@@ -163,6 +189,7 @@ public class EditConfigFragment extends Fragment {
 
     }
 
+    /*
     public void initConfig(Map<String, Object> config) {
         valueLoop(config, binding.container);
     }
@@ -280,4 +307,89 @@ public class EditConfigFragment extends Fragment {
             }
         }
     }
+
+    */
+
+    public JsonNode buildJsonNodeTree(Map<String, Object> map) {
+        root = new JsonNode();
+        root.key = "config";
+        root.type = JsonNode.Type.OBJECT;
+        root.expanded = true;
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            JsonNode child = mapToJsonNode(entry.getKey(), entry.getValue(), root);
+            root.children.add(child);
+        }
+
+        return root;
+    }
+
+    private JsonNode mapToJsonNode(String key, Object value, JsonNode parent) {
+        JsonNode node = new JsonNode();
+        node.key = key;
+        node.parent = parent;
+
+        if (value instanceof Map) {
+            node.type = JsonNode.Type.OBJECT;
+            node.value = null;
+            node.expanded = false;
+            node.children = new ArrayList<>();
+            Map<String, Object> subMap = (Map<String, Object>) value;
+            for (Map.Entry<String, Object> entry : subMap.entrySet()) {
+                node.children.add(mapToJsonNode(entry.getKey(), entry.getValue(), node));
+            }
+        } else if (value instanceof List) {
+            node.type = JsonNode.Type.ARRAY;
+            node.value = null;
+            node.expanded = false;
+            node.children = new ArrayList<>();
+            List<?> list = (List<?>) value;
+            for (int i = 0; i < list.size(); i++) {
+                Object element = list.get(i);
+                node.children.add(mapToJsonNode(String.valueOf(i), element, node));
+            }
+        } else if (value instanceof Boolean) {
+            node.type = JsonNode.Type.BOOLEAN;
+            node.value = value;
+        } else if (value instanceof Integer || value instanceof Double) {
+            node.type = JsonNode.Type.NUMBER;
+            node.value = value;
+        } else if (value == null) {
+            node.type = JsonNode.Type.NULL;
+            node.value = null;
+        } else {
+            node.type = JsonNode.Type.STRING;
+            node.value = value.toString();
+        }
+
+        return node;
+    }
+
+    public Object jsonNodeToObject(JsonNode node) {
+        switch (node.type) {
+            case OBJECT:
+                Map<String, Object> map = new LinkedHashMap<>();
+                for (JsonNode child : node.children) {
+                    map.put(child.key, jsonNodeToObject(child));
+                }
+                return map;
+
+            case ARRAY:
+                List<Object> list = new ArrayList<>();
+                for (JsonNode child : node.children) {
+                    list.add(jsonNodeToObject(child));
+                }
+                return list;
+
+            case BOOLEAN:
+            case NUMBER:
+            case STRING:
+                return node.value;
+
+            case NULL:
+            default:
+                return null;
+        }
+    }
+
 }

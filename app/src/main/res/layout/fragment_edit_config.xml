@@ -52,12 +52,11 @@
                     android:background="@drawable/outline_bg">
 
                     <LinearLayout
+                        android:layout_marginTop="8dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingHorizontal="8dp"
-                        android:layout_marginTop="16dp"
-                        android:orientation="horizontal">
-
+                        android:layout_height="wrap_content">
                         <TextView
                             android:id="@+id/positionTV"
                             android:layout_width="wrap_content"
@@ -78,13 +77,44 @@
                             android:padding="4dp"
                             />
                     </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/configTree"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:paddingHorizontal="8dp"-->
+<!--                        android:layout_marginTop="16dp"-->
+<!--                        android:orientation="horizontal">-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/positionTV"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:textColor="@color/dark_blue"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:textStyle="bold"-->
+<!--                            android:text="@string/positionText" />-->
+
+<!--                        <Spinner-->
+<!--                            android:id="@+id/positionSpn"-->
+<!--                            android:layout_marginStart="16dp"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginBottom="6dp"-->
+<!--                            android:background="@drawable/darker_blue_outline"-->
+<!--                            android:gravity="center"-->
+<!--                            android:padding="4dp"-->
+<!--                            />-->
+<!--                    </LinearLayout>-->
                 </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
-
-
 
 </FrameLayout>
