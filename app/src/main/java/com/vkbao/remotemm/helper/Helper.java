@@ -117,4 +117,14 @@ public class Helper {
         float density = context.getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
     }
+
+    public static interface OnItemClick<T> {
+        void onClick(T item);
+    }
+
+    public static interface Callback<T> {
+        void onCall(T value);
+    }
 }
+
+

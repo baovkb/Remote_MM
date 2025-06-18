@@ -17,6 +17,7 @@
     <string name="menu_backupMenu_restore">Khôi phục</string>
     <string name="menu_backupMenu_delete">Xóa</string>
     <string name="text_face">Khuôn mặt</string>
+    <string name="text_profile_config">Cấu hình profile</string>
 
 <!--    main fragment-->
     <string name="main_restart">Khởi động lại</string>
@@ -41,4 +42,9 @@
     <string name="ok">OK</string>
     <string name="cancel">Hủy</string>
     <string name="encode_faces">Mã hóa khuôn mặt</string>
+
+    <string name="profile_config_default_page_modules">Module trang mặc định</string>
+    <string name="profile_config_profile">Nguời dùng</string>
+    <string name="profile_config_profile_config_detail">Cấu hình giao diện người dùng</string>
+    <string name="profile_page">Trang %s/%s</string>
 </resources>

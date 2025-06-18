@@ -164,6 +164,9 @@ public class MainFragment extends Fragment {
         fragments.add(new FileFragment());
         tabNames.add(getString(R.string.text_face));
 
+        fragments.add(new ProfileConfigFragment());
+        tabNames.add(getResources().getString(R.string.text_profile_config));
+
         fragments.add(new BackupAndRestoreFragment());
         tabNames.add(getResources().getString(R.string.text_backup_and_restore));
 

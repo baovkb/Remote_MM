@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,6 +21,7 @@ import com.vkbao.remotemm.model.SystemInfoResponse;
 import com.vkbao.remotemm.model.VolumeModel;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -33,8 +35,24 @@ public class WebsocketViewModel extends AndroidViewModel {
     private MutableLiveData<ModulesByPageResponse> modulesByPageLiveData;
     private MutableLiveData<VolumeModel> volumeLiveData;
     private MutableLiveData<List<String>> backupFileLiveData;
+    private MediatorLiveData<ModuleModel> profileLiveData;
+    private MediatorLiveData<List<Object>> profileConfigLiveData;
+
+    private MediatorLiveData<String> chosenProfileLiveData;
 
     private final Gson gson;
+
+    public LiveData<List<Object>> getProfileConfigLiveData() {
+        return profileConfigLiveData;
+    }
+
+    public LiveData<String> getChosenProfileLiveData() {
+        return chosenProfileLiveData;
+    }
+
+    public void setChosenProfile(String profile) {
+        this.chosenProfileLiveData.setValue(profile);
+    }
 
     public WebsocketViewModel(@NonNull Application application) {
         super(application);
@@ -45,10 +63,48 @@ public class WebsocketViewModel extends AndroidViewModel {
         volumeLiveData = new MutableLiveData<>();
         connectionStateLiveData = new MediatorLiveData<>();
         backupFileLiveData = new MutableLiveData<>();
+        profileLiveData = new MediatorLiveData<>();
+        profileConfigLiveData = new MediatorLiveData<>();
+        chosenProfileLiveData = new MediatorLiveData<>("");
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Map.class, new CustomJson());
         gson = gsonBuilder.create();
+
+        chosenProfileLiveData.addSource(profileLiveData, moduleModel -> {
+            Boolean isProfileExist = moduleModel.getConfig().containsKey("profiles");
+            String chosenProfile = chosenProfileLiveData.getValue();
+
+            if (isProfileExist) {
+                List<Object> profiles = (List<Object>) moduleModel.getConfig().get("profiles");
+                Boolean isChosenProfileExist = false;
+                for (Object object: profiles) {
+                    if (object instanceof HashMap && ((HashMap<?, ?>) object).get("name").equals(chosenProfile)) {
+                        isChosenProfileExist = true;
+                    }
+                }
+                if (!isChosenProfileExist) {
+                    chosenProfileLiveData.setValue("");
+                }
+            }
+        });
+
+        profileLiveData.addSource(allModuleLiveData, moduleModels -> {
+            for (ModuleModel module: moduleModels) {
+                if (module.getModule().contains("MMM-Screen-Control")) {
+                    String json = gson.toJson(module);
+                    ModuleModel copy = gson.fromJson(json, ModuleModel.class);
+                    profileLiveData.setValue(copy);
+                }
+            }
+        });
+
+        profileConfigLiveData.addSource(profileLiveData, moduleModel -> {
+            Map<String, Object> config = moduleModel.getConfig();
+            if (config.containsKey("profiles")) {
+                profileConfigLiveData.setValue((List<Object>) config.get("profiles"));
+            }
+        });
 
         connectionStateLiveData.addSource(websocketClientManager.getMessageLiveData(), message -> {
             switch (message) {
@@ -90,15 +146,14 @@ public class WebsocketViewModel extends AndroidViewModel {
                                 SystemInfoResponse sysInfo = gson.fromJson(message, SystemInfoResponse.class);
 
                                 //update volume
-                                volumeLiveData.postValue(new VolumeModel(
+                                volumeLiveData.setValue(new VolumeModel(
                                         sysInfo.getSpeaker(),
                                         sysInfo.getRecorder()));
 
-                                //update all modules
-                                allModuleLiveData.postValue(sysInfo.getAllModules());
+                                allModuleLiveData.setValue(sysInfo.getAllModules());
 
                                 //update modules by page
-                                modulesByPageLiveData.postValue(sysInfo.getModulesByPage());
+                                modulesByPageLiveData.setValue(sysInfo.getModulesByPage());
                             } catch (Exception ignored) {
                             }
 
@@ -122,7 +177,7 @@ public class WebsocketViewModel extends AndroidViewModel {
                         case "modules by page":
                             try {
                                 String dataJson = gson.toJson(map.get("data"));
-                                modulesByPageLiveData.postValue(gson.fromJson(dataJson, ModulesByPageResponse.class));
+                                modulesByPageLiveData.setValue(gson.fromJson(dataJson, ModulesByPageResponse.class));
                             } catch (Exception ignored) {}
                             break;
                         case "backup files":
@@ -130,7 +185,7 @@ public class WebsocketViewModel extends AndroidViewModel {
                                 String dataJson = gson.toJson(map.get("data"));
                                 Type fileListType = new TypeToken<List<String>>() {
                                 }.getType();
-                                backupFileLiveData.postValue(gson.fromJson(dataJson, fileListType));
+                                backupFileLiveData.setValue(gson.fromJson(dataJson, fileListType));
                             } catch (Exception ignored) {
                             }
                             break;
@@ -166,6 +221,14 @@ public class WebsocketViewModel extends AndroidViewModel {
 
     public MutableLiveData<VolumeModel> getVolumeLiveData() {
         return volumeLiveData;
+    }
+
+    public LiveData<ModuleModel> getProfileLiveData() {
+        return profileLiveData;
+    }
+
+    public void setProfileLiveData(ModuleModel newModuleModel) {
+        profileLiveData.setValue(newModuleModel);
     }
 
     public enum CONNECTION_STATE {

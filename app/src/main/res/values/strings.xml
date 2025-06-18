@@ -16,6 +16,7 @@
     <string name="menu_backupMenu_restore">Restore</string>
     <string name="menu_backupMenu_delete">Delete</string>
     <string name="text_face">Face</string>
+    <string name="text_profile_config">Profile config</string>
 
     <!--    main fragment-->
     <string name="main_restart">Restart</string>
@@ -41,4 +42,9 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="encode_faces">Encode faces</string>
+
+    <string name="profile_config_default_page_modules">Default Page Modules</string>
+    <string name="profile_config_profile">Profiles</string>
+    <string name="profile_config_profile_config_detail">Profile configs</string>
+    <string name="profile_page">Page %s/%s</string>
 </resources>

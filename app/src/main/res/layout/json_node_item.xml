@@ -73,11 +73,12 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:contentDescription=""
-        app:srcCompat="@android:drawable/ic_menu_add" />
+        android:layout_marginHorizontal="4dp"
+        app:srcCompat="@drawable/ic_add" />
 
     <ImageView
         android:id="@+id/deleteButton"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        app:srcCompat="@android:drawable/ic_menu_delete" />
+        app:srcCompat="@drawable/ic_delete" />
 </LinearLayout>
