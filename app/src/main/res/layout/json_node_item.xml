@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="8dp"
+    android:gravity="center_vertical"
+    android:paddingEnd="8dp">
+
+    <!-- Indentation space (will be set dynamically) -->
+    <View
+        android:id="@+id/indent_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />
+
+    <!-- Expand/Collapse Toggle -->
+    <ImageView
+        android:id="@+id/btn_toggle"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:visibility="gone"
+        app:tint="@color/dark_blue"
+        android:src="@drawable/ic_expand_more" />
+
+    <!-- Key -->
+    <TextView
+        android:id="@+id/key_text"
+        android:layout_width="wrap_content"
+        android:minWidth="48dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        android:background="@drawable/outline_bg"
+        android:hint="key" />
+
+    <!-- Value -->
+    <EditText
+        android:id="@+id/value_text"
+        android:layout_width="0dp"
+        android:minWidth="24dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:layout_marginStart="8dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        android:inputType="textNoSuggestions"
+        android:background="@drawable/outline_bg"
+        android:hint="value" />
+
+    <!-- Type info or control -->
+    <TextView
+        android:id="@+id/type_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:textSize="16sp"
+        android:textColor="@color/dark_blue"
+        android:visibility="visible"
+        android:background="@drawable/outline_bg"
+        android:layout_marginStart="8dp" />
+
+    <ImageView
+        android:id="@+id/addButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription=""
+        android:layout_marginHorizontal="4dp"
+        app:srcCompat="@drawable/ic_add" />
+
+    <ImageView
+        android:id="@+id/deleteButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:srcCompat="@drawable/ic_delete" />
+</LinearLayout>
