@@ -17,6 +17,9 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
 import com.vkbao.remotemm.R;
 import com.vkbao.remotemm.databinding.DialogAddNodeBinding;
@@ -85,24 +88,7 @@ public class JsonTreeAdapter extends RecyclerView.Adapter<JsonTreeAdapter.JsonVi
         }
 
         // setup type spinner
-        List<String> typeList = parseType();
-        ArrayAdapter<String> positionAdapter = new ArrayAdapter<>(context, R.layout.position_item, typeList);
-        positionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        holder.binding.typeSpinner.setAdapter(positionAdapter);
-
-        holder.binding.typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
-        //set selected module
-        holder.binding.typeSpinner.setSelection(typeList.indexOf(node.type.name()));
+        holder.binding.typeSpinner.setText(node.type.name());
     }
 
     @Override
@@ -194,19 +180,56 @@ public class JsonTreeAdapter extends RecyclerView.Adapter<JsonTreeAdapter.JsonVi
                 node.parent != null ? View.VISIBLE : View.GONE); // hide root delete
     }
 
-    private Object parseTypedValue(String input, JsonNode.Type type) {
-        switch (type) {
-            case NUMBER:
-                return input.contains(".") ? Double.parseDouble(input) : Integer.parseInt(input);
-            case BOOLEAN:
-                return Boolean.parseBoolean(input);
-            case NULL:
-                return null;
-            case STRING:
-            default:
-                return input;
+    private Object parseTypedValue(String input, JsonNode.Type type) throws IllegalArgumentException {
+        try {
+            Gson gson = new Gson();
+            switch (type) {
+                case NUMBER:
+                    if (input.contains(".")) {
+                        return Double.parseDouble(input);
+                    } else {
+                        return Integer.parseInt(input);
+                    }
+
+                case BOOLEAN:
+                    if (input.equalsIgnoreCase("true") || input.equalsIgnoreCase("false")) {
+                        return Boolean.parseBoolean(input);
+                    }
+                    throw new IllegalArgumentException("Value must be 'true' or 'false'");
+
+                case NULL:
+                    if (input.trim().isEmpty() || input.equalsIgnoreCase("null")) {
+                        return null;
+                    }
+                    throw new IllegalArgumentException("Null type must have empty or 'null' value");
+
+                case OBJECT: {
+                    JsonElement element = JsonParser.parseString(input);
+                    if (!element.isJsonObject()) {
+                        throw new IllegalArgumentException("Invalid JSON object");
+                    }
+                    return gson.fromJson(element, Map.class);
+                }
+
+                case ARRAY: {
+                    JsonElement element = JsonParser.parseString(input);
+                    if (!element.isJsonArray()) {
+                        throw new IllegalArgumentException("Invalid JSON array");
+                    }
+                    return gson.fromJson(element, List.class);
+                }
+
+                case STRING:
+                default:
+                    return input;
+            }
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Invalid JSON syntax");
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid number format");
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -224,24 +247,59 @@ public class JsonTreeAdapter extends RecyclerView.Adapter<JsonTreeAdapter.JsonVi
         AddNodeDialog addNodeDialog = new AddNodeDialog();
         addNodeDialog.setSpinnerData(spinnerData);
         addNodeDialog.setPositiveBtn((keyText, valueText, typeStr) -> {
-            JsonNode.Type type = JsonNode.Type.valueOf(typeStr);
-            Object value = parseTypedValue(valueText, type);
+            try {
+                JsonNode.Type type = JsonNode.Type.valueOf(typeStr);
+                Object value = parseTypedValue(valueText, type);
 
-            JsonNode newNode = new JsonNode();
-            Log.d("node", node.key);
+                JsonNode newNode = new JsonNode();
+                newNode.parent = node;
+                newNode.key = keyText;
+                newNode.type = type;
+                newNode.value = value;
+                newNode.children = new ArrayList<>();
 
-            newNode.parent = node;
-            newNode.key = keyText;
-            newNode.type = type;
-            newNode.value = value;
-            newNode.children = new ArrayList<>();
+                if (type == JsonNode.Type.OBJECT) {
+                    Map<String, Object> map = (Map<String, Object>) value;
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        JsonNode child = new JsonNode();
+                        child.parent = newNode;
+                        child.key = entry.getKey();
+                        child.value = entry.getValue();
+                        child.type = inferTypeFromValue(entry.getValue());
+                        child.children = new ArrayList<>();
+                        newNode.children.add(child);
+                    }
+                } else if (type == JsonNode.Type.ARRAY) {
+                    List<Object> list = (List<Object>) value;
+                    for (int i = 0; i < list.size(); i++) {
+                        JsonNode child = new JsonNode();
+                        child.parent = newNode;
+                        child.key = String.valueOf(i);
+                        child.value = list.get(i);
+                        child.type = inferTypeFromValue(list.get(i));
+                        child.children = new ArrayList<>();
+                        newNode.children.add(child);
+                    }
+                }
 
-            node.expanded = true;
-            node.children.add(newNode);
-            updateVisibleNodes();
+                node.expanded = true;
+                node.children.add(newNode);
+                updateVisibleNodes();
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
 
         addNodeDialog.show(((FragmentActivity) context).getSupportFragmentManager(), null);
+    }
+
+    private JsonNode.Type inferTypeFromValue(Object value) {
+        if (value == null) return JsonNode.Type.NULL;
+        else if (value instanceof Map) return JsonNode.Type.OBJECT;
+        else if (value instanceof List) return JsonNode.Type.ARRAY;
+        else if (value instanceof Boolean) return JsonNode.Type.BOOLEAN;
+        else if (value instanceof Number) return JsonNode.Type.NUMBER;
+        else return JsonNode.Type.STRING;
     }
 
     static class JsonViewHolder extends RecyclerView.ViewHolder {

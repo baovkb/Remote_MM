@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.text.InputType;
 import android.util.LayoutDirection;
@@ -18,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import com.vkbao.remotemm.databinding.FragmentProfileConfigBinding;
 import com.vkbao.remotemm.helper.Helper;
 import com.vkbao.remotemm.model.ModuleModel;
 import com.vkbao.remotemm.viewmodel.WebsocketViewModel;
+import com.vkbao.remotemm.views.dialogs.ConfirmDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,6 +77,24 @@ public class ProfileConfigFragment extends Fragment {
         initSaveAllBtn();
     }
 
+    public void showConfirmDialog() {
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setMessage(getString(R.string.confirm_save_config));
+        confirmDialog.setPositiveBtn(() -> {
+            ModuleModel moduleModel = websocketViewModel.getProfileLiveData().getValue();
+
+            Map<String, Object> payload = new LinkedTreeMap<>();
+            Gson gson = new Gson();
+            payload.put("action", "request save config");
+            payload.put("data", moduleModel);
+
+            String json = gson.toJson(payload);
+            websocketViewModel.sendMessage(json);
+        });
+
+        confirmDialog.show(getChildFragmentManager(), null);
+    }
+
     private void initSaveAllBtn() {
         binding.saveAllBtn.setOnTouchListener(new View.OnTouchListener() {
             float dX, dY;
@@ -89,6 +110,12 @@ public class ProfileConfigFragment extends Fragment {
                         startX = event.getRawX();
                         startY = event.getRawY();
                         startTime = System.currentTimeMillis();
+
+                        ViewParent parent = view.getParent();
+                        while (parent != null) {
+                            parent.requestDisallowInterceptTouchEvent(true);
+                            parent = parent.getParent();
+                        }
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
@@ -110,6 +137,12 @@ public class ProfileConfigFragment extends Fragment {
                         if (deltaX < 10 && deltaY < 10 && deltaTime < 200) {
                             view.performClick();
                         }
+
+                        parent = view.getParent();
+                        while (parent != null) {
+                            parent.requestDisallowInterceptTouchEvent(false);
+                            parent = parent.getParent();
+                        }
                         return true;
 
                     default:
@@ -118,16 +151,9 @@ public class ProfileConfigFragment extends Fragment {
             }
         });
 
+
         binding.saveAllBtn.setOnClickListener(view -> {
-            ModuleModel moduleModel = websocketViewModel.getProfileLiveData().getValue();
-
-            Map<String, Object> payload = new LinkedTreeMap<>();
-            Gson gson = new Gson();
-            payload.put("action", "request save config");
-            payload.put("data", moduleModel);
-
-            String json = gson.toJson(payload);
-            websocketViewModel.sendMessage(json);
+            showConfirmDialog();
         });
     }
 
