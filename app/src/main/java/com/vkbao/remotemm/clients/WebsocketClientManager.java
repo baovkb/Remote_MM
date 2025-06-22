@@ -44,6 +44,7 @@ public class WebsocketClientManager {
             return;
         }
 
+        messageLiveData.postValue("connecting");
 
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
@@ -53,17 +54,19 @@ public class WebsocketClientManager {
 
             @Override
             public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, @Nullable Response response) {
-                messageLiveData.postValue("failure ");
+                messageLiveData.postValue("failure");
                 Log.d("test", t.toString());
             }
 
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
-                messageLiveData.postValue("connect_successful");
+                messageLiveData.postValue("opened");
             }
 
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                if (code == 1000) return;
+
                 messageLiveData.postValue("disconnected");
             }
         });

@@ -3,9 +3,20 @@
 
     <!--    connect fragment-->
     <string name="text_hint_connect">Enter address of server</string>
+    <string name="text_hint_username">Username</string>
+    <string name="text_hint_password">Password</string>
     <string name="text_connect">Connect</string>
     <string name="toast_connect_fail">Cannot connect to server</string>
+    <string name="toast_authen_failed">Username or password is incorrect</string>
+    <string name="toast_disconnect">Lost connection</string>
     <string name="toast_wrong_url">Url is invalid</string>
+
+    <string name="text_home">Home</string>
+    <string name="text_backup_and_restore">Backup &amp; Restore</string>
+    <string name="menu_backupMenu_restore">Restore</string>
+    <string name="menu_backupMenu_delete">Delete</string>
+    <string name="text_face">Face</string>
+    <string name="text_profile_config">Profile config</string>
 
     <!--    main fragment-->
     <string name="main_restart">Restart</string>
@@ -14,4 +25,26 @@
     <string name="recorder">Recorder</string>
     <string name="modules_by_page_group">Page</string>
     <string name="modules_group">All modules</string>
+
+    <!--    edit fragment-->
+    <string name="toolbar_title">Edit module config</string>
+    <string name="positionText" translatable="false">Position</string>
+    <string name="menu_save">Save</string>
+    <string name="confirm_save_config">Are you sure you want to save this config?\n(You need to restart the mirror to ensure working properly)</string>
+
+    <string name="toast_fail_start_cam">Fail to start camera</string>
+    <string name="toast_cam_permission">Camera permission is required</string>
+    <string name="toast_scan_qr_error">Cannot scan QR</string>
+
+    <string name="fab_create_folder">Add a new folder</string>
+    <string name="fab_upload_images">Upload images</string>
+    <string name="create_folder_menu_title">Enter folder name</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="encode_faces">Encode faces</string>
+
+    <string name="profile_config_default_page_modules">Default Page Modules</string>
+    <string name="profile_config_profile">Profiles</string>
+    <string name="profile_config_profile_config_detail">Profile configs</string>
+    <string name="profile_page">Page %s/%s</string>
 </resources>

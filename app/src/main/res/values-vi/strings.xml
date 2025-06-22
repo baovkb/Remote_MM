@@ -4,9 +4,20 @@
 
 <!--    connect fragment-->
     <string name="text_hint_connect">Nhập địa chỉ của server</string>
+    <string name="text_hint_username">Tên người dùng</string>
+    <string name="text_hint_password">Mật khẩu</string>
     <string name="text_connect">Kết nối</string>
     <string name="toast_connect_fail">Không thể kết nối đến server</string>
+    <string name="toast_authen_failed">Tên tài khoản hoặc mật khẩu không đúng</string>
+    <string name="toast_disconnect">Mất kết nối</string>
     <string name="toast_wrong_url">Url không hợp lệ</string>
+
+    <string name="text_home">Trang chủ</string>
+    <string name="text_backup_and_restore">Sao lưu &amp; Khôi phục</string>
+    <string name="menu_backupMenu_restore">Khôi phục</string>
+    <string name="menu_backupMenu_delete">Xóa</string>
+    <string name="text_face">Khuôn mặt</string>
+    <string name="text_profile_config">Cấu hình profile</string>
 
 <!--    main fragment-->
     <string name="main_restart">Khởi động lại</string>
@@ -15,4 +26,25 @@
     <string name="recorder">Ghi âm</string>
     <string name="modules_by_page_group">Trang</string>
     <string name="modules_group">Tất cả mô-đun</string>
+
+    <!--    edit fragment-->
+    <string name="toolbar_title">Chỉnh sửa cấu hình module</string>
+    <string name="menu_save">Lưu</string>
+    <string name="confirm_save_config">Bạn có chắc muốn lưu cấu hình này?\n(Bạn cần khởi động lại sau khi thay đổi để đảm bảo hoạt động đúng)</string>
+
+    <string name="toast_fail_start_cam">Lỗi khi khởi động camera</string>
+    <string name="toast_cam_permission">Quyền truy cập vào camera là cần thiết</string>
+    <string name="toast_scan_qr_error">Không thể quét QR</string>
+
+    <string name="fab_create_folder">Tạo thư mục</string>
+    <string name="fab_upload_images">Thêm hình ảnh</string>
+    <string name="create_folder_menu_title">Nhập tên thư mục</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Hủy</string>
+    <string name="encode_faces">Mã hóa khuôn mặt</string>
+
+    <string name="profile_config_default_page_modules">Module trang mặc định</string>
+    <string name="profile_config_profile">Nguời dùng</string>
+    <string name="profile_config_profile_config_detail">Cấu hình giao diện người dùng</string>
+    <string name="profile_page">Trang %s/%s</string>
 </resources>
